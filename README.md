@@ -71,7 +71,7 @@ curl -X GET http://localhost:8081/api/json-to-db/info
 
 ## JSON Format
 
-Place your JSON files in the `input/` directory. Expected format:
+Create an `input/` directory and place your JSON files there. Expected format:
 
 ```json
 {
@@ -138,8 +138,8 @@ server.port=8081
 
 ### File Locations
 
-- **JSON Input**: `input/` directory
-- **Database Output**: `db/promptquest.db`
+- **JSON Input**: `input/` directory (not included in repository - create locally)
+- **Database Output**: `db/promptquest.db` (auto-generated)
 - **Schema**: `db/schema.sql` (reference only)
 
 ## Project Structure
@@ -158,10 +158,10 @@ prompt-quest-app/
 │   └── PromptQuestApplication.java     # Main application
 ├── src/main/resources/
 │   └── application.properties          # Configuration
-├── input/
-│   └── promptquest-questions-test.json # Sample data
 ├── db/
 │   └── schema.sql                      # Database schema reference
+├── .gitignore                          # Git ignore rules
+├── README.md                           # Project documentation
 └── pom.xml                            # Maven dependencies
 ```
 

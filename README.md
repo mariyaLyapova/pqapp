@@ -1,13 +1,16 @@
-# PromptQuest Database Creator
+# PromptQuest
 
-A Spring Boot application that creates SQLite database files from JSON quiz data using JPA/Hibernate.
+A comprehensive Spring Boot quiz application with a complete web interface for technical questions and assessments.
 
 ## Features
 
+- 🎯 Interactive web-based quiz interface
 - 📊 Creates SQLite database from JSON files
 - 🚀 Spring Boot + JPA/Hibernate integration
-- 💾 Automatic table creation and data import
-- ✨ Simple REST API for database operations
+- 💾 Automatic database initialization on startup
+- ✨ RESTful API for quiz operations
+- 📱 Responsive single-page application
+- 🔄 Real-time quiz scoring and feedback
 
 ## Quick Start
 
@@ -20,7 +23,7 @@ A Spring Boot application that creates SQLite database files from JSON quiz data
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/prompt-quest-app.git
 cd prompt-quest-app
 ```
 
@@ -29,44 +32,66 @@ cd prompt-quest-app
 mvn spring-boot:run
 ```
 
-3. **Create database from JSON**
-```bash
-curl -X POST http://localhost:8081/api/json-to-db/quick-setup
+3. **Access the quiz application**
+Open your browser and navigate to:
+```
+http://localhost:8081
 ```
 
-This will:
-- Create `db/promptquest.db` SQLite file
-- Import all questions from `input/promptquest-questions-test.json`
-- Return success confirmation with statistics
+The application will automatically:
+- Initialize the SQLite database on first startup
+- Import sample quiz questions if available
+- Provide a complete quiz interface at the root URL
 
 ## API Endpoints
 
-### Database Creation
+### Quiz Operations
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/json-to-db/quick-setup` | Create database with default JSON file |
-| POST | `/api/json-to-db/create-from-json` | Create database with custom JSON file |
-| POST | `/api/json-to-db/reset` | Reset and recreate database |
-| GET | `/api/json-to-db/info` | Get database information |
+| GET | `/api/quiz/questions` | Get all quiz questions |
+| GET | `/api/quiz/random/{count}` | Get random questions for quiz |
+| POST | `/api/quiz/check` | Submit answers and get results |
+
+### Data Management
+
+The application uses automatic database initialization on startup. Use the included import script for easy data management:
+
+```bash
+# Import questions from JSON file
+./import-questions.sh -f your-questions.json
+
+# Import and start in background
+./import-questions.sh -f questions.json -s
+
+# Import without clearing existing data
+./import-questions.sh -f questions.json --no-clear
+```
 
 ### Example Usage
 
-**Quick Setup (Recommended)**
+**Get Quiz Questions**
 ```bash
-curl -X POST http://localhost:8081/api/json-to-db/quick-setup
+curl -X GET http://localhost:8081/api/quiz/questions
 ```
 
-**Custom JSON File**
+**Get 5 Random Questions**
 ```bash
-curl -X POST http://localhost:8081/api/json-to-db/create-from-json \
+curl -X GET http://localhost:8081/api/quiz/random/5
+```
+
+**Submit Quiz Answers**
+```bash
+curl -X POST http://localhost:8081/api/quiz/check \
   -H "Content-Type: application/json" \
-  -d '{"jsonFilePath": "file:input/your-file.json", "recreateDb": true}'
+  -d '[{"questionId": 1, "answer": "A"}, {"questionId": 2, "answer": "B"}]'
 ```
 
-**Check Database Info**
+**Data Import Examples**
 ```bash
-curl -X GET http://localhost:8081/api/json-to-db/info
+# See IMPORT-GUIDE.md for detailed instructions
+./import-questions.sh -f input/promptquest-questions-test.json
+./import-questions.sh -f questions.json -p 8080 --no-clear
 ```
 
 ## JSON Format
@@ -147,21 +172,25 @@ server.port=8081
 ```
 prompt-quest-app/
 ├── src/main/java/com/promptquest/
+│   ├── config/
+│   │   └── DatabaseInitializer.java    # Auto-startup database setup
 │   ├── controller/
-│   │   └── JsonToDbController.java     # REST API endpoints
+│   │   └── QuizController.java         # Quiz operations API
 │   ├── entity/
 │   │   └── Question.java               # JPA entity
 │   ├── repository/
 │   │   └── QuestionRepository.java     # Data access layer
 │   ├── service/
-│   │   └── JsonImportService.java      # Business logic
+│   │   └── JsonImportService.java      # JSON import business logic
 │   └── PromptQuestApplication.java     # Main application
 ├── src/main/resources/
-│   └── application.properties          # Configuration
-├── db/
-│   └── schema.sql                      # Database schema reference
+│   ├── application.properties          # Spring configuration
+│   └── static/
+│       └── index.html                  # Complete quiz web interface
 ├── .gitignore                          # Git ignore rules
 ├── README.md                           # Project documentation
+├── IMPORT-GUIDE.md                     # Import script documentation
+├── import-questions.sh                 # Data import utility script
 └── pom.xml                            # Maven dependencies
 ```
 
@@ -223,6 +252,16 @@ Set log level in `application.properties`:
 ```properties
 logging.level.com.promptquest=DEBUG
 ```
+
+## Security Considerations
+
+This application is designed for educational and demonstration purposes. For production use, consider implementing:
+
+- **CORS Configuration**: Replace `@CrossOrigin(origins = "*")` with specific allowed domains
+- **Rate Limiting**: Add request throttling to prevent abuse
+- **Input Validation**: Add validation annotations for API inputs
+- **HTTPS**: Always use HTTPS in production environments
+- **Monitoring**: Add logging and monitoring for suspicious activities
 
 ## License
 

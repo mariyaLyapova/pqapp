@@ -5,12 +5,14 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 ## Features
 
 - 🎯 Interactive web-based quiz interface
+- 🛠️ Admin panel for question management and file uploads
 - 📊 Creates SQLite database from JSON files
 - 🚀 Spring Boot + JPA/Hibernate integration
 - 💾 Automatic database initialization on startup
 - ✨ RESTful API for quiz operations
 - 📱 Responsive single-page application
 - 🔄 Real-time quiz scoring and feedback
+- 📤 Web-based JSON file upload functionality
 
 ## Quick Start
 
@@ -32,16 +34,24 @@ cd prompt-quest-app
 mvn spring-boot:run
 ```
 
-3. **Access the quiz application**
+3. **Access the applications**
 Open your browser and navigate to:
+
+**Quiz Interface:**
 ```
 http://localhost:8081
+```
+
+**Admin Panel:**
+```
+http://localhost:8081/admin.html
 ```
 
 The application will automatically:
 - Initialize the SQLite database on first startup
 - Import sample quiz questions if available
 - Provide a complete quiz interface at the root URL
+- Offer an admin panel for question management
 
 ## API Endpoints
 
@@ -52,6 +62,14 @@ The application will automatically:
 | GET | `/api/quiz/questions` | Get all quiz questions |
 | GET | `/api/quiz/random/{count}` | Get random questions for quiz |
 | POST | `/api/quiz/check` | Submit answers and get results |
+
+### Admin Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/import-json` | Upload and import JSON question files |
+| GET | `/api/admin/stats` | Get database statistics |
+| DELETE | `/api/admin/clear` | Clear all questions from database |
 
 ### Data Management
 
@@ -93,6 +111,28 @@ curl -X POST http://localhost:8081/api/quiz/check \
 ./import-questions.sh -f input/promptquest-questions-test.json
 ./import-questions.sh -f questions.json -p 8080 --no-clear
 ```
+
+## Admin Panel
+
+The admin panel provides a user-friendly web interface for managing quiz questions:
+
+### Features
+- 📤 **File Upload**: Upload JSON files directly through the web interface
+- 📊 **Database Statistics**: View question counts, difficulty distribution, and categories
+- 🗑️ **Data Management**: Clear existing questions or append new ones
+- ✅ **Import Validation**: Real-time feedback on file uploads and import status
+- 📝 **Progress Tracking**: Visual progress indicators for import operations
+
+### Access
+Navigate to `http://localhost:8081/admin.html` after starting the application.
+
+### Usage
+1. **Upload JSON File**: Click "Choose File" and select your question JSON file
+2. **Configure Import**: Choose whether to clear existing questions or append
+3. **Import**: Click "Import Questions" to process the file
+4. **Monitor Progress**: Watch real-time feedback and statistics updates
+
+The admin panel supports the same JSON format as the command-line import tool.
 
 ## JSON Format
 

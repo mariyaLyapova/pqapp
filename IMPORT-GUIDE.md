@@ -1,9 +1,10 @@
 # PromptQuest JSON Import Guide
 
-This guide explains how to use the import script to start the PromptQuest application with automatic database initialization from JSON files.
+This guide explains how to import questions into the PromptQuest application using either the command-line script or the web-based admin panel.
 
-## 🚀 Quick Start
+## 🚀 Quick Start Options
 
+### Option 1: Command Line (Automated)
 ```bash
 # Make the script executable (first time only)
 chmod +x import-questions.sh
@@ -11,6 +12,11 @@ chmod +x import-questions.sh
 # Import questions and start app with automatic initialization
 ./import-questions.sh -f your-questions.json
 ```
+
+### Option 2: Web Admin Panel (User-Friendly)
+1. Start the application: `mvn spring-boot:run`
+2. Open browser to: `http://localhost:8081/admin.html`
+3. Upload JSON file through the web interface
 
 ## 📋 Script Options
 
@@ -47,6 +53,31 @@ chmod +x import-questions.sh
 # Import without clearing existing questions
 ./import-questions.sh -f questions.json --no-clear
 ```
+
+## 🌐 Web Admin Panel
+
+The admin panel provides a user-friendly alternative to command-line imports:
+
+### Access
+Navigate to `http://localhost:8081/admin.html` after starting the application.
+
+### Features
+- **Drag & Drop File Upload**: Easy file selection with visual feedback
+- **Import Configuration**: Choose to clear existing data or append
+- **Real-time Progress**: Visual indicators during import process
+- **Database Statistics**: Live view of question counts and distribution
+- **Error Handling**: Clear feedback on import issues
+- **Responsive Design**: Works on desktop and mobile devices
+
+### Usage Steps
+1. **Start Application**: `mvn spring-boot:run` (if not already running)
+2. **Open Admin Panel**: Navigate to admin.html in your browser
+3. **Select File**: Click "Choose File" or drag JSON file to upload area
+4. **Configure Import**: Toggle "Clear existing questions" as needed
+5. **Import**: Click "Import Questions" button
+6. **Monitor**: Watch progress and view updated statistics
+
+The web interface supports the same JSON format and validation as the command-line tool.
 
 ## 📁 File Structure
 

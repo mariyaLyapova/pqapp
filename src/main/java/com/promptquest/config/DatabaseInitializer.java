@@ -66,35 +66,46 @@ public class DatabaseInitializer implements ApplicationRunner {
                 }
             }
 
-            // Step 3: Check if JSON file exists
+            // Step 3: Check if JSON file exists and import if available
             File jsonFile = new File(jsonFilePath.replace("file:", ""));
+            int questionsImported = 0;
+
             if (!jsonFile.exists()) {
-                logger.error("JSON file not found at: {} (absolute: {})", jsonFilePath, jsonFile.getAbsolutePath());
-                logger.error("Please ensure the JSON file exists before starting the application");
-                return;
+                logger.info("JSON file not found at: {} (absolute: {})", jsonFilePath, jsonFile.getAbsolutePath());
+                logger.info("No initial data will be imported. Database will be created empty.");
+                logger.info("You can import questions later using the admin panel at /admin.html");
+            } else {
+                logger.info("Found JSON file: {} (size: {} bytes)", jsonFile.getAbsolutePath(), jsonFile.length());
+
+                // Step 4: Import JSON data
+                logger.info("Loading JSON data from: {}", jsonFilePath);
+                questionsImported = jsonImportService.importQuestionsFromJson(jsonFilePath, false);
             }
-
-            logger.info("Found JSON file: {} (size: {} bytes)", jsonFile.getAbsolutePath(), jsonFile.length());
-
-            // Step 4: Import JSON data
-            logger.info("Loading JSON data from: {}", jsonFilePath);
-            int questionsImported = jsonImportService.importQuestionsFromJson(jsonFilePath, false);
 
             // Step 5: Verify database file was created
             File dbFile = new File("db/promptquest.db");
             boolean dbExists = dbFile.exists();
 
-            // Step 6: Get statistics
+            // Step 6: Get statistics and report completion
             try {
                 var statistics = jsonImportService.getImportStatistics();
                 logger.info("Database initialization completed successfully:");
                 logger.info("  - Questions imported: {}", questionsImported);
                 logger.info("  - Database file created: {} ({})", dbExists, dbFile.getAbsolutePath());
                 logger.info("  - Database file size: {} bytes", dbExists ? dbFile.length() : 0);
-                logger.info("  - Statistics: {}", statistics);
+
+                if (questionsImported > 0) {
+                    logger.info("  - Statistics: {}", statistics);
+                } else {
+                    logger.info("  - Database is ready for question import via admin panel");
+                }
             } catch (Exception e) {
                 logger.warn("Could not retrieve statistics: {}", e.getMessage());
-                logger.info("Database initialization completed with {} questions imported", questionsImported);
+                if (questionsImported > 0) {
+                    logger.info("Database initialization completed with {} questions imported", questionsImported);
+                } else {
+                    logger.info("Database initialization completed. Database is empty and ready for question import.");
+                }
             }
 
         } catch (Exception e) {

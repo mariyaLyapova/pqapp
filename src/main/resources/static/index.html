@@ -630,7 +630,7 @@
                         <label for="area-filter">Area:</label>
                         <div class="custom-multi-select">
                             <div class="multi-select-trigger" id="area-trigger" tabindex="0" onclick="toggleAreaDropdown()">
-                                <span class="selected-area-text" id="selected-area-text">All Areas</span>
+                                <span class="selected-area-text" id="selected-area-text">No Areas Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="area-dropdown">
                                 <!-- Area options will be populated here -->
@@ -641,7 +641,7 @@
                         <label for="skill-filter">Skills:</label>
                         <div class="custom-multi-select">
                             <div class="multi-select-trigger" id="skills-trigger" tabindex="0" onclick="toggleSkillsDropdown()">
-                                <span class="selected-skills-text" id="selected-skills-text">All Skills</span>
+                                <span class="selected-skills-text" id="selected-skills-text">No Skills Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="skills-dropdown">
                                 <!-- Skill options will be populated here -->
@@ -815,14 +815,12 @@
                 const description = `Test your knowledge with ${totalQuestions} questions covering ${skillText} in ${areaText}. Questions range from ${degreeText} with difficulty levels ${minDiff}-${maxDiff}.`;
 
                 document.getElementById('quiz-description').textContent = description;
-                document.getElementById('total-questions').textContent = totalQuestions;
-                document.getElementById('difficulty-range').textContent = `${minDiff}-${maxDiff}`;
-                document.getElementById('skill-areas').textContent = skills.length;
 
+                // Don't set initial stats here - let applyFilters() handle it
                 document.getElementById('quiz-stats').classList.remove('hidden');
                 document.getElementById('filter-section').classList.remove('hidden');
 
-                // Apply initial filters
+                // Apply initial filters (this will set the correct stats)
                 applyFilters();
             } catch (error) {
                 console.error('Error loading quiz stats:', error);
@@ -879,7 +877,7 @@
                 checkbox.type = 'checkbox';
                 checkbox.id = `area-checkbox-${area}`;
                 checkbox.value = area;
-                checkbox.checked = true; // Start with all areas selected
+                checkbox.checked = false; // Start with no areas selected
                 checkbox.addEventListener('change', onAreaCheckboxChange);
 
                 const label = document.createElement('label');
@@ -890,8 +888,7 @@
                 optionDiv.appendChild(label);
                 areaDropdown.appendChild(optionDiv);
 
-                // Add to selected areas since we start with all selected
-                selectedAreas.add(area);
+                // Don't add to selectedAreas - start empty
             });
 
             // Populate skills with custom multi-select options
@@ -903,7 +900,7 @@
                 checkbox.type = 'checkbox';
                 checkbox.id = `skill-checkbox-${skill}`;
                 checkbox.value = skill;
-                checkbox.checked = true; // Start with all skills selected
+                checkbox.checked = false; // Start with no skills selected
                 checkbox.addEventListener('change', onSkillCheckboxChange);
 
                 const label = document.createElement('label');
@@ -914,8 +911,7 @@
                 optionDiv.appendChild(label);
                 skillsDropdown.appendChild(optionDiv);
 
-                // Add to selected skills since we start with all selected
-                selectedSkills.add(skill);
+                // Don't add to selectedSkills - start empty
             });
 
             // Update the trigger text
@@ -1015,12 +1011,22 @@
             const difficulties = questions.map(q => q.difficulty);
 
             if (difficulties.length > 0) {
-                const minDiff = Math.min(...difficulties);
-                const maxDiff = Math.max(...difficulties);
+                // Ensure difficulties are numbers and filter out any invalid values
+                const validDifficulties = difficulties.filter(d => d != null && !isNaN(d)).map(d => parseInt(d));
 
-                document.getElementById('total-questions').textContent = questions.length;
-                document.getElementById('difficulty-range').textContent = `${minDiff}-${maxDiff}`;
-                document.getElementById('skill-areas').textContent = filteredSkills.length;
+                if (validDifficulties.length > 0) {
+                    const minDiff = Math.min(...validDifficulties);
+                    const maxDiff = Math.max(...validDifficulties);
+
+                    document.getElementById('total-questions').textContent = questions.length;
+                    document.getElementById('difficulty-range').textContent = `${minDiff}-${maxDiff}`;
+                    document.getElementById('skill-areas').textContent = filteredSkills.length;
+                } else {
+                    // All difficulties are invalid
+                    document.getElementById('total-questions').textContent = questions.length;
+                    document.getElementById('difficulty-range').textContent = 'N/A';
+                    document.getElementById('skill-areas').textContent = filteredSkills.length;
+                }
             } else {
                 document.getElementById('total-questions').textContent = 0;
                 document.getElementById('difficulty-range').textContent = 'N/A';

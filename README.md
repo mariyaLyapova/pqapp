@@ -21,36 +21,42 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 
 ## Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended)
 
-- Java 17 or higher
-- Maven 3.6+
+**Prerequisites:** Docker and Docker Compose
 
-### Running the Application
-
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/prompt-quest-app.git
-cd prompt-quest-app
+# Clone the repository
+git clone https://github.com/mariyaLyapova/pqapp.git
+cd pqapp
+
+# Start the application with our helper script
+./docker-run.sh start
+
+# Or use Docker Compose directly
+docker-compose up -d
 ```
 
-2. **Run the application**
+**Access the application:**
+- **Quiz Interface:** http://localhost:8081
+- **Admin Panel:** http://localhost:8081/admin.html
+
+### Option 2: Local Development
+
+**Prerequisites:** Java 17+, Maven 3.6+
+
 ```bash
+# Clone the repository
+git clone https://github.com/mariyaLyapova/pqapp.git
+cd pqapp
+
+# Run the application
 mvn spring-boot:run
 ```
 
-3. **Access the applications**
-Open your browser and navigate to:
-
-**Quiz Interface:**
-```
-http://localhost:8081
-```
-
-**Admin Panel:**
-```
-http://localhost:8081/admin.html
-```
+**Access the application:**
+- **Quiz Interface:** http://localhost:8081
+- **Admin Panel:** http://localhost:8081/admin.html
 
 The application will automatically:
 - Initialize the SQLite database on first startup
@@ -351,10 +357,6 @@ This application is designed for educational and demonstration purposes. For pro
 - **HTTPS**: Always use HTTPS in production environments
 - **Monitoring**: Add logging and monitoring for suspicious activities
 
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## Contributing
 
 1. Fork the repository
@@ -362,6 +364,8 @@ This project is open source and available under the [MIT License](LICENSE).
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

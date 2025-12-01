@@ -14,27 +14,9 @@ chmod +x import-questions.sh
 ```
 
 ### Option 2: Web Admin Panel (User-Friendly)
-**For local development:**
 1. Start the application: `mvn spring-boot:run`
 2. Open browser to: `http://localhost:8081/admin.html`
 3. Upload JSON file through the web interface
-
-**For Docker:**
-1. Start with Docker: `docker-compose up -d` or `./docker-run.sh start`
-2. Open browser to: `http://localhost:8081/admin.html`
-3. Upload JSON file through the web interface
-
-### Option 3: Docker with Persistent Data
-```bash
-# Place your JSON files in the input/ directory
-mkdir -p input
-cp your-questions.json input/
-
-# Start the application
-docker-compose up -d
-
-# The files will be automatically accessible via the admin panel
-```
 
 ## 📋 Script Options
 

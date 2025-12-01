@@ -652,7 +652,7 @@
                 <div class="filter-grid-bottom">
                     <div class="filter-group">
                         <label for="question-count">Question Count:</label>
-                        <select id="question-count" onchange="updateFilterPreview()">
+                        <select id="question-count" onchange="applyFilters()">
                             <option value="all">All Questions</option>
                             <option value="5">5 Questions</option>
                             <option value="10" selected>10 Questions</option>
@@ -822,8 +822,8 @@
                 document.getElementById('quiz-stats').classList.remove('hidden');
                 document.getElementById('filter-section').classList.remove('hidden');
 
-                // Update filter preview
-                updateFilterPreview();
+                // Apply initial filters
+                applyFilters();
             } catch (error) {
                 console.error('Error loading quiz stats:', error);
             }
@@ -1037,6 +1037,9 @@
             // Select all skills
             selectedSkills.clear();
             availableSkills.forEach(skill => selectedSkills.add(skill));
+
+            // Reset question count to default (10 questions)
+            document.getElementById('question-count').value = '10';
 
             // Update area checkboxes
             document.querySelectorAll('#area-dropdown input[type="checkbox"]').forEach(checkbox => {

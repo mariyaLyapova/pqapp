@@ -528,6 +528,40 @@
             margin-top: 10px;
             transition: background 0.3s;
         }
+
+        /* Filter Message Styles */
+        .filter-message {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.95em;
+            animation: fadeInMessage 0.3s ease-in;
+        }
+
+        .filter-message.info {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1976d2;
+            border: 1px solid #90caf9;
+        }
+
+        .filter-message.warning {
+            background: linear-gradient(135deg, #fff3e0, #ffcc02);
+            color: #f57c00;
+            border: 1px solid #ffb74d;
+        }
+
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         .clear-filters-btn:hover {
             background: #545b62;
         }
@@ -667,6 +701,9 @@
                     <div class="filter-preview-text" id="filter-preview">Loading available questions...</div>
                     <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
                 </div>
+
+                <!-- Filter Message Area -->
+                <div id="filter-message" class="filter-message" style="display: none;"></div>
             </div>
 
             <div id="quiz-stats" class="quiz-stats hidden">
@@ -919,21 +956,22 @@
             updateSkillsDropdownText();
         }
 
-        // Apply filters to questions
+        // Apply filters to questions with smart fallback logic
         function applyFilters() {
-            // Filter questions based on area and skill selections
-            let filteredQuestions = allQuestions.filter(question => {
-                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
-                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
-                return areaMatch && skillMatch;
-            });
-
-            // Apply question count limit
             const questionCount = document.getElementById('question-count').value;
-            if (questionCount !== 'all') {
-                const count = parseInt(questionCount);
-                // Shuffle the questions randomly to provide variety
-                filteredQuestions = shuffleArray(filteredQuestions).slice(0, count);
+            let filteredQuestions;
+
+            if (questionCount === 'all') {
+                // Filter questions based on area and skill selections
+                filteredQuestions = allQuestions.filter(question => {
+                    const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                    const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                    return areaMatch && skillMatch;
+                });
+            } else {
+                // Smart filtering to ensure exact count
+                const targetCount = parseInt(questionCount);
+                filteredQuestions = getQuestionsWithSmartFallback(targetCount);
             }
 
             questions = filteredQuestions;
@@ -943,6 +981,101 @@
 
             // Update stats display
             updateStatsDisplay();
+        }
+
+        // Smart filtering function to ensure exact question count
+        function getQuestionsWithSmartFallback(targetCount) {
+            // Clear any previous filter messages
+            clearFilterMessage();
+
+            // Try 1: Apply both area and skill filters
+            let filtered = allQuestions.filter(question => {
+                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                return areaMatch && skillMatch;
+            });
+
+            if (filtered.length >= targetCount) {
+                return shuffleArray(filtered).slice(0, targetCount);
+            }
+
+            // Try 2: Relax one filter - prioritize skill over area if both are selected
+            if (selectedSkills.size > 0 && selectedAreas.size > 0) {
+                // Try with skill filter only
+                filtered = allQuestions.filter(question =>
+                    selectedSkills.has(question.skill)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Relaxed area filter to get ${targetCount} questions. Using skill filter only.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+
+                // Try with area filter only
+                filtered = allQuestions.filter(question =>
+                    selectedAreas.has(question.area)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Relaxed skill filter to get ${targetCount} questions. Using area filter only.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 3: Use only skill filter if selected
+            if (selectedSkills.size > 0) {
+                filtered = allQuestions.filter(question =>
+                    selectedSkills.has(question.skill)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Using skill filter only to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 4: Use only area filter if selected
+            if (selectedAreas.size > 0) {
+                filtered = allQuestions.filter(question =>
+                    selectedAreas.has(question.area)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Using area filter only to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 5: Use all questions (no filters)
+            if (allQuestions.length >= targetCount) {
+                showFilterMessage(`Filters relaxed completely to get ${targetCount} questions from all available questions.`, 'warning');
+                return shuffleArray(allQuestions).slice(0, targetCount);
+            }
+
+            // Fallback: Return all available questions if we still can't get the target count
+            showFilterMessage(`Only ${allQuestions.length} questions available in total, but ${targetCount} requested.`, 'warning');
+            return shuffleArray(allQuestions);
+        }
+
+        // Show filter adjustment message to user
+        function showFilterMessage(message, type = 'info') {
+            const messageArea = document.getElementById('filter-message');
+            if (messageArea) {
+                messageArea.textContent = message;
+                messageArea.className = `filter-message ${type}`;
+                messageArea.style.display = 'block';
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => clearFilterMessage(), 5000);
+            }
+        }
+
+        // Clear filter message
+        function clearFilterMessage() {
+            const messageArea = document.getElementById('filter-message');
+            if (messageArea) {
+                messageArea.style.display = 'none';
+            }
         }
 
         // Helper function to shuffle array

@@ -3,19 +3,26 @@ package com.promptquest.controller;
 import com.promptquest.entity.Question;
 import com.promptquest.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
-@RestController
-@RequestMapping("/api/quiz")
+@Controller
 @CrossOrigin(origins = "*") // Allow frontend access
 public class QuizController {
 
     @Autowired
     private QuestionRepository questionRepository;
 
+    // Web interface routes
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/index.html";
+    }
+
     // Get all questions for the quiz
-    @GetMapping("/questions")
+    @GetMapping("/api/quiz/questions")
+    @ResponseBody
     public List<Map<String, Object>> getAllQuestions() {
         List<Question> questions = questionRepository.findAll();
         List<Map<String, Object>> result = new ArrayList<>();
@@ -38,7 +45,8 @@ public class QuizController {
     }
 
     // Check answers and get results
-    @PostMapping("/check")
+    @PostMapping("/api/quiz/check")
+    @ResponseBody
     public Map<String, Object> checkAnswers(@RequestBody Map<String, String> answers) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> questionResults = new ArrayList<>();
@@ -81,7 +89,8 @@ public class QuizController {
     }
 
     // Get random questions (optional, for variety)
-    @GetMapping("/random/{count}")
+    @GetMapping("/api/quiz/random/{count}")
+    @ResponseBody
     public List<Map<String, Object>> getRandomQuestions(@PathVariable int count) {
         List<Question> allQuestions = questionRepository.findAll();
         Collections.shuffle(allQuestions);

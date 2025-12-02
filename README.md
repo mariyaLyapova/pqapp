@@ -4,7 +4,12 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 
 ## Features
 
-- 🎯 Interactive web-based quiz interface
+- 🎯 Interactive web-based quiz interface with advanced filtering
+- 🔍 **Smart Question Filtering**: Filter questions by area, skills, and question count
+- 🎛️ **Multi-Select Filters**: Choose multiple areas and skills for customized quizzes
+- 📊 **Dynamic Question Count**: Select from 5 to 30 questions or use all available
+- 🎲 **Random Question Selection**: Questions are randomly shuffled when count is limited
+- 📈 **Real-time Filter Preview**: See exactly how many questions match your filters
 - 🛠️ Admin panel for question management and file uploads
 - 📊 Creates SQLite database from JSON files
 - 🚀 Spring Boot + JPA/Hibernate integration
@@ -16,42 +21,91 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 
 ## Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended)
 
-- Java 17 or higher
-- Maven 3.6+
+**Prerequisites:** Docker and Docker Compose
 
-### Running the Application
-
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/prompt-quest-app.git
-cd prompt-quest-app
+# Clone the repository
+git clone https://github.com/mariyaLyapova/pqapp.git
+cd pqapp
+
+# Start the application with our helper script
+./docker-run.sh start
+
+# Or use Docker Compose directly
+docker-compose up -d
 ```
 
-2. **Run the application**
+**Access the application:**
+- **Quiz Interface:** http://localhost:8081
+- **Admin Panel:** http://localhost:8081/admin.html
+
+### Option 2: Local Development
+
+**Prerequisites:** Java 17+, Maven 3.6+
+
 ```bash
+# Clone the repository
+git clone https://github.com/mariyaLyapova/pqapp.git
+cd pqapp
+
+# Run the application
 mvn spring-boot:run
 ```
 
-3. **Access the applications**
-Open your browser and navigate to:
-
-**Quiz Interface:**
-```
-http://localhost:8081
-```
-
-**Admin Panel:**
-```
-http://localhost:8081/admin.html
-```
+**Access the application:**
+- **Quiz Interface:** http://localhost:8081
+- **Admin Panel:** http://localhost:8081/admin.html
 
 The application will automatically:
 - Initialize the SQLite database on first startup
 - Import sample quiz questions if available
 - Provide a complete quiz interface at the root URL
 - Offer an admin panel for question management
+
+## Quiz Interface Features
+
+### Advanced Question Filtering
+
+The quiz interface includes powerful filtering capabilities to customize your quiz experience:
+
+#### 🔍 Filter Options
+
+1. **Area Filter (Multi-Select)**
+   - Choose from available question areas (e.g., Programming, Databases, etc.)
+   - Select multiple areas to include questions from different domains
+   - Visual display shows "All Areas" when everything is selected
+
+2. **Skills Filter (Multi-Select)**
+   - Filter by specific technical skills (e.g., Java, Spring Boot, Python, etc.)
+   - Support for multi-skill selection (e.g., "Java + Spring Boot" for framework-specific tests)
+   - Smart text display shows selected skills with "+X more" for multiple selections
+
+3. **Question Count Filter**
+   - Choose exactly how many questions for your quiz
+   - Options: 5, 10, 15, 20, 25, 30 questions, or all available
+   - Default: 10 questions for optimal quiz length
+
+#### 🎲 Smart Question Selection
+
+- **Random Shuffling**: When limiting question count, questions are randomly selected to ensure variety
+- **Real-time Preview**: See exactly how many questions match your current filters
+- **Filter Combinations**: Mix and match areas, skills, and counts for precise quiz targeting
+
+#### 💡 Example Use Cases
+
+- **Java Spring Boot Test**: Select "Programming" area + "Java, Spring Boot" skills + 15 questions
+- **Full Stack Assessment**: Select "Frontend, Backend" areas + relevant skills + 25 questions
+- **Quick Skills Check**: Select specific skill + 5 questions for rapid assessment
+- **Comprehensive Review**: Select "All Areas" + "All Skills" + 30 questions for thorough testing
+
+#### 🎨 User Experience
+
+- **Intuitive Interface**: Clean, responsive design with consistent 300px filter controls
+- **Visual Feedback**: Clear indication of selected filters and resulting question counts
+- **Flexible Layout**: Area and Skills filters side-by-side, Question Count centered below
+- **One-Click Reset**: "Clear Filters" button to instantly reset to all questions
 
 ## API Endpoints
 
@@ -303,10 +357,6 @@ This application is designed for educational and demonstration purposes. For pro
 - **HTTPS**: Always use HTTPS in production environments
 - **Monitoring**: Add logging and monitoring for suspicious activities
 
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## Contributing
 
 1. Fork the repository
@@ -314,6 +364,8 @@ This project is open source and available under the [MIT License](LICENSE).
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

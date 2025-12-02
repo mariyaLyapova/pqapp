@@ -21,9 +21,29 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 
 ## Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended)
 
-**Java 17+, Maven 3.6+**
+**Prerequisites:** Docker and Docker Compose
+
+```bash
+# Clone the repository
+git clone https://github.com/mariyaLyapova/pqapp.git
+cd pqapp
+
+# Start the application with our helper script
+./docker-run.sh start
+
+# Or use Docker Compose directly
+docker-compose up -d
+```
+
+**Access the application:**
+- **Quiz Interface:** http://localhost:8081
+- **Admin Panel:** http://localhost:8081/admin.html
+
+### Option 2: Local Development
+
+**Prerequisites:** Java 17+, Maven 3.6+
 
 ```bash
 # Clone the repository

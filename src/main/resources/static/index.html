@@ -471,7 +471,7 @@
             display: block;
         }
         .multi-select-option {
-            padding: 10px 12px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             cursor: pointer;
@@ -485,18 +485,23 @@
             background: #f8f9fa;
         }
         .multi-select-option input[type="checkbox"] {
-            margin-right: 10px;
-            width: 16px;
-            height: 16px;
+            margin-right: 8px;
+            width: 14px;
+            height: 14px;
             accent-color: #007bff;
         }
         .multi-select-option label {
             flex: 1;
             cursor: pointer;
             color: #495057;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             margin: 0;
+        }
+
+        /* Resize stars in difficulty filter labels */
+        #difficulty-dropdown .multi-select-option label {
+            font-size: 11px;
         }
         .selected-skills-text {
             flex: 1;
@@ -685,6 +690,38 @@
                 </div>
                 <div class="filter-grid-bottom">
                     <div class="filter-group">
+                        <label for="difficulty-filter">Difficulty:</label>
+                        <div class="custom-multi-select">
+                            <div class="multi-select-trigger" id="difficulty-trigger" tabindex="0" onclick="toggleDifficultyDropdown()">
+                                <span class="selected-difficulty-text" id="selected-difficulty-text">No Difficulties Selected</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="difficulty-dropdown">
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-1" value="1" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-1">✦ Very Easy (1)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-2" value="2" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-2">✦✦ Easy (2)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-3" value="3" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-3">✦✦✦ Medium (3)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-4" value="4" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-4">✦✦✦✦ Hard (4)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-5" value="5" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-5">✦✦✦✦✦ Very Hard (5)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-grid-bottom">
+                    <div class="filter-group">
                         <label for="question-count">Question Count:</label>
                         <select id="question-count" onchange="applyFilters()">
                             <option value="all">All Questions</option>
@@ -709,7 +746,11 @@
             <div id="quiz-stats" class="quiz-stats hidden">
                 <div class="stat-item">
                     <div class="stat-number" id="total-questions">0</div>
-                    <div class="stat-label">Total Questions</div>
+                    <div class="stat-label">Filtered Questions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="database-total">0</div>
+                    <div class="stat-label">Database Total</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="difficulty-range">1-5</div>
@@ -785,6 +826,7 @@
         let availableSkills = new Set();
         let selectedAreas = new Set(); // Track selected areas
         let selectedSkills = new Set(); // Track selected skills
+        let selectedDifficulties = new Set(); // Track selected difficulties (default: none selected)
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -852,6 +894,9 @@
                 const description = `Test your knowledge with ${totalQuestions} questions covering ${skillText} in ${areaText}. Questions range from ${degreeText} with difficulty levels ${minDiff}-${maxDiff}.`;
 
                 document.getElementById('quiz-description').textContent = description;
+
+                // Set the database total (this doesn't change with filters)
+                document.getElementById('database-total').textContent = totalQuestions;
 
                 // Don't set initial stats here - let applyFilters() handle it
                 document.getElementById('quiz-stats').classList.remove('hidden');
@@ -962,11 +1007,12 @@
             let filteredQuestions;
 
             if (questionCount === 'all') {
-                // Filter questions based on area and skill selections
+                // Filter questions based on area, skill, and difficulty selections
                 filteredQuestions = allQuestions.filter(question => {
                     const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
                     const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
-                    return areaMatch && skillMatch;
+                    const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                    return areaMatch && skillMatch && difficultyMatch;
                 });
             } else {
                 // Smart filtering to ensure exact count
@@ -988,41 +1034,56 @@
             // Clear any previous filter messages
             clearFilterMessage();
 
-            // Try 1: Apply both area and skill filters
+            // Try 1: Apply all filters (area, skill, and difficulty)
             let filtered = allQuestions.filter(question => {
                 const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
                 const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
-                return areaMatch && skillMatch;
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
             });
 
             if (filtered.length >= targetCount) {
                 return shuffleArray(filtered).slice(0, targetCount);
             }
 
-            // Try 2: Relax one filter - prioritize skill over area if both are selected
+            // Try 2: Relax difficulty filter first (keep area and skill)
+            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
+                filtered = allQuestions.filter(question => {
+                    const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                    const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                    return areaMatch && skillMatch;
+                });
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Relaxed difficulty filter to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 3: Relax one more filter - prioritize skill over area if both are selected
             if (selectedSkills.size > 0 && selectedAreas.size > 0) {
-                // Try with skill filter only
+                // Try with skill filter only (+ all difficulties)
                 filtered = allQuestions.filter(question =>
                     selectedSkills.has(question.skill)
                 );
 
                 if (filtered.length >= targetCount) {
-                    showFilterMessage(`Relaxed area filter to get ${targetCount} questions. Using skill filter only.`, 'info');
+                    showFilterMessage(`Relaxed area and difficulty filters to get ${targetCount} questions. Using skill filter only.`, 'info');
                     return shuffleArray(filtered).slice(0, targetCount);
                 }
 
-                // Try with area filter only
+                // Try with area filter only (+ all difficulties)
                 filtered = allQuestions.filter(question =>
                     selectedAreas.has(question.area)
                 );
 
                 if (filtered.length >= targetCount) {
-                    showFilterMessage(`Relaxed skill filter to get ${targetCount} questions. Using area filter only.`, 'info');
+                    showFilterMessage(`Relaxed skill and difficulty filters to get ${targetCount} questions. Using area filter only.`, 'info');
                     return shuffleArray(filtered).slice(0, targetCount);
                 }
             }
 
-            // Try 3: Use only skill filter if selected
+            // Try 4: Use only skill filter if selected
             if (selectedSkills.size > 0) {
                 filtered = allQuestions.filter(question =>
                     selectedSkills.has(question.skill)
@@ -1034,7 +1095,7 @@
                 }
             }
 
-            // Try 4: Use only area filter if selected
+            // Try 5: Use only area filter if selected
             if (selectedAreas.size > 0) {
                 filtered = allQuestions.filter(question =>
                     selectedAreas.has(question.area)
@@ -1046,7 +1107,19 @@
                 }
             }
 
-            // Try 5: Use all questions (no filters)
+            // Try 6: Use only difficulty filter if selected
+            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
+                filtered = allQuestions.filter(question =>
+                    selectedDifficulties.has(question.difficulty)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Using difficulty filter only to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 7: Use all questions (no filters)
             if (allQuestions.length >= targetCount) {
                 showFilterMessage(`Filters relaxed completely to get ${targetCount} questions from all available questions.`, 'warning');
                 return shuffleArray(allQuestions).slice(0, targetCount);
@@ -1097,10 +1170,12 @@
             let filterText = '';
             const areasArray = [...selectedAreas];
             const skillsArray = [...selectedSkills];
+            const difficultiesArray = [...selectedDifficulties].sort((a, b) => a - b);
 
             // Build filter text components
             let areaText = '';
             let skillText = '';
+            let difficultyText = '';
             let countText = '';
 
             if (selectedAreas.size > 0 && selectedAreas.size < availableAreas.size) {
@@ -1115,12 +1190,22 @@
                     skillsArray.join(', ');
             }
 
+            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
+                if (difficultiesArray.length === 1) {
+                    difficultyText = `Difficulty ${difficultiesArray[0]}`;
+                } else if (difficultiesArray.length <= 3) {
+                    difficultyText = `Difficulties ${difficultiesArray.join(', ')}`;
+                } else {
+                    difficultyText = `Difficulties ${difficultiesArray.slice(0, 2).join(', ')} + ${difficultiesArray.length - 2} more`;
+                }
+            }
+
             if (selectedQuestionCount !== 'all') {
                 countText = `${selectedQuestionCount} questions`;
             }
 
             // Combine filter text
-            const filterParts = [areaText, skillText, countText].filter(part => part);
+            const filterParts = [areaText, skillText, difficultyText, countText].filter(part => part);
             if (filterParts.length > 0) {
                 filterText = filterParts.join(' - ');
             } else {
@@ -1141,7 +1226,16 @@
         function updateStatsDisplay() {
             const filteredSkills = [...new Set(questions.map(q => q.skill))];
             const filteredAreas = [...new Set(questions.map(q => q.area))];
-            const difficulties = questions.map(q => q.difficulty);
+
+            // Get difficulty range from all questions matching the current filters, not just the final question set
+            const availableQuestions = allQuestions.filter(question => {
+                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
+            });
+
+            const difficulties = availableQuestions.map(q => q.difficulty);
 
             if (difficulties.length > 0) {
                 // Ensure difficulties are numbers and filter out any invalid values
@@ -1177,6 +1271,9 @@
             selectedSkills.clear();
             availableSkills.forEach(skill => selectedSkills.add(skill));
 
+            // Clear difficulties (no difficulties selected)
+            selectedDifficulties.clear();
+
             // Reset question count to default (10 questions)
             document.getElementById('question-count').value = '10';
 
@@ -1190,8 +1287,14 @@
                 checkbox.checked = true;
             });
 
+            // Update difficulty checkboxes (uncheck all)
+            document.querySelectorAll('#difficulty-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
             updateAreaDropdownText();
             updateSkillsDropdownText();
+            updateDifficultyDropdownText();
             applyFilters();
         }
 
@@ -1223,6 +1326,20 @@
             applyFilters();
         }
 
+        // Handle difficulty checkbox changes
+        function onDifficultyCheckboxChange(event) {
+            const difficulty = parseInt(event.target.value);
+
+            if (event.target.checked) {
+                selectedDifficulties.add(difficulty);
+            } else {
+                selectedDifficulties.delete(difficulty);
+            }
+
+            updateDifficultyDropdownText();
+            applyFilters();
+        }
+
         // Toggle area dropdown visibility
         function toggleAreaDropdown() {
             const trigger = document.getElementById('area-trigger');
@@ -1236,6 +1353,15 @@
         function toggleSkillsDropdown() {
             const trigger = document.getElementById('skills-trigger');
             const dropdown = document.getElementById('skills-dropdown');
+
+            trigger.classList.toggle('open');
+            dropdown.classList.toggle('show');
+        }
+
+        // Toggle difficulty dropdown visibility
+        function toggleDifficultyDropdown() {
+            const trigger = document.getElementById('difficulty-trigger');
+            const dropdown = document.getElementById('difficulty-dropdown');
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
@@ -1279,6 +1405,25 @@
             }
         }
 
+        // Update the difficulty dropdown trigger text
+        function updateDifficultyDropdownText() {
+            const triggerText = document.getElementById('selected-difficulty-text');
+            const difficultiesArray = [...selectedDifficulties].sort((a, b) => a - b);
+
+            if (selectedDifficulties.size === 0) {
+                triggerText.textContent = 'No Difficulties Selected';
+            } else if (selectedDifficulties.size === 5) {
+                triggerText.textContent = 'All Difficulties';
+            } else if (difficultiesArray.length === 1) {
+                triggerText.textContent = `Difficulty ${difficultiesArray[0]}`;
+            } else if (difficultiesArray.length === 2) {
+                triggerText.textContent = `Difficulties ${difficultiesArray.join(', ')}`;
+            } else {
+                const firstTwo = difficultiesArray.slice(0, 2).join(', ');
+                triggerText.textContent = `Difficulties ${firstTwo} +${difficultiesArray.length - 2} more`;
+            }
+        }
+
         // Setup click outside handler for dropdown
         function setupDropdownClickOutside() {
             document.addEventListener('click', function(event) {
@@ -1301,6 +1446,16 @@
                     skillsTrigger.classList.remove('open');
                     skillsDropdown.classList.remove('show');
                 }
+
+                // Handle difficulty dropdown
+                const difficultyTrigger = document.getElementById('difficulty-trigger');
+                const difficultyDropdown = document.getElementById('difficulty-dropdown');
+                const difficultyCustomSelect = difficultyTrigger?.closest('.custom-multi-select');
+
+                if (difficultyCustomSelect && !difficultyCustomSelect.contains(event.target)) {
+                    difficultyTrigger.classList.remove('open');
+                    difficultyDropdown.classList.remove('show');
+                }
             });
 
             // Also close on Escape key
@@ -1315,6 +1470,11 @@
                     const skillsDropdown = document.getElementById('skills-dropdown');
                     skillsTrigger.classList.remove('open');
                     skillsDropdown.classList.remove('show');
+
+                    const difficultyTrigger = document.getElementById('difficulty-trigger');
+                    const difficultyDropdown = document.getElementById('difficulty-dropdown');
+                    difficultyTrigger.classList.remove('open');
+                    difficultyDropdown.classList.remove('show');
                 }
             });
         }

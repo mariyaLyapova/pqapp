@@ -584,6 +584,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-left: 5px;
         }
         .export-btn-small:hover {
             transform: translateY(-1px);
@@ -907,7 +908,8 @@
         <!-- Results Screen -->
         <div id="results-container" class="hidden">
             <div style="text-align: right; margin-bottom: 15px;">
-                <button type="button" class="export-btn-small" onclick="exportResultsAsPNG()">📊 Export PNG</button>
+                <button type="button" class="export-btn-small" onclick="exportResultsAsPNG()">📊 Export Stats</button>
+                <button type="button" class="export-btn-small" onclick="exportQuestionsAsPNG()">📝 Export Questions</button>
             </div>
             <h2 id="results-title">Quiz Results</h2>
             <div id="score-display"></div>
@@ -1930,6 +1932,112 @@
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     const filename = `PromptQuest_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.png`;
+                    link.download = filename;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            } catch (error) {
+                alert('Error generating image: ' + error.message);
+            }
+        }
+
+        async function exportQuestionsAsPNG() {
+            if (!quizResults) {
+                alert('No quiz results available to export');
+                return;
+            }
+            
+            const exportContent = document.getElementById('export-content');
+            
+            // Generate export content with all questions and answers
+            const currentDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            let questionsHTML = '';
+            quizResults.questionResults.forEach((result, index) => {
+                const isCorrect = result.isCorrect;
+                const statusIcon = isCorrect ? '✅' : '❌';
+                const statusColor = isCorrect ? '#4ade80' : '#f87171';
+                
+                questionsHTML += `
+                    <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 10px; border-left: 4px solid ${statusColor};">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <span style="font-size: 1.5em; margin-right: 10px;">${statusIcon}</span>
+                            <strong style="font-size: 1.1em;">Question ${index + 1}</strong>
+                        </div>
+                        <p style="margin: 10px 0; font-size: 1em; line-height: 1.5;"><strong>${result.question}</strong></p>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="padding: 8px; margin: 5px 0; background: ${result.correctAnswer === 'A' ? '#d1fae5' : (result.userAnswer === 'A' ? '#fee2e2' : 'white')}; border-radius: 5px;">
+                                <strong>A.</strong> ${result.optionA}
+                            </div>
+                            <div style="padding: 8px; margin: 5px 0; background: ${result.correctAnswer === 'B' ? '#d1fae5' : (result.userAnswer === 'B' ? '#fee2e2' : 'white')}; border-radius: 5px;">
+                                <strong>B.</strong> ${result.optionB}
+                            </div>
+                            <div style="padding: 8px; margin: 5px 0; background: ${result.correctAnswer === 'C' ? '#d1fae5' : (result.userAnswer === 'C' ? '#fee2e2' : 'white')}; border-radius: 5px;">
+                                <strong>C.</strong> ${result.optionC}
+                            </div>
+                            <div style="padding: 8px; margin: 5px 0; background: ${result.correctAnswer === 'D' ? '#d1fae5' : (result.userAnswer === 'D' ? '#fee2e2' : 'white')}; border-radius: 5px;">
+                                <strong>D.</strong> ${result.optionD}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 10px; padding: 10px; background: #e0f2fe; border-radius: 5px;">
+                            <strong style="color: #0369a1;">✓ Correct Answer:</strong> <strong>${result.correctAnswer}</strong>
+                        </div>
+                        
+                        ${result.userAnswer ? `
+                            <div style="margin-top: 5px; padding: 10px; background: ${isCorrect ? '#d1fae5' : '#fee2e2'}; border-radius: 5px;">
+                                <strong style="color: ${isCorrect ? '#15803d' : '#991b1b'};">Your Answer:</strong> <strong>${result.userAnswer}</strong>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 5px; font-style: italic; font-size: 0.95em;">
+                            <strong>💡 Explanation:</strong> ${result.explanation}
+                        </div>
+                        
+                        <div style="margin-top: 10px; font-size: 0.85em; color: #6b7280;">
+                            <strong>Area:</strong> ${result.area} | <strong>Skill:</strong> ${result.skill} | <strong>Difficulty:</strong> ${'★'.repeat(result.difficulty)}${'☆'.repeat(5 - result.difficulty)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            exportContent.innerHTML = `
+                <div style="padding: 40px; background: white; font-family: Arial, sans-serif;">
+                    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #667eea;">
+                        <h1 style="margin: 0; color: #667eea; font-size: 2em;">📚 PromptQuest - Questions & Answers</h1>
+                        <p style="font-size: 1.2em; margin: 10px 0; color: #333;">${userName}</p>
+                        <p style="color: #6b7280;">${currentDate}</p>
+                        <p style="margin: 10px 0; color: #333;"><strong>Score:</strong> ${quizResults.correctAnswers}/${quizResults.totalQuestions} (${Math.round(quizResults.score)}%)</p>
+                    </div>
+                    
+                    ${questionsHTML}
+                    
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb; color: #6b7280; font-size: 0.9em;">
+                        <p>Generated by PromptQuest Quiz App</p>
+                    </div>
+                </div>
+            `;
+            
+            // Use html2canvas to convert to image
+            try {
+                const canvas = await html2canvas(exportContent, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    windowHeight: exportContent.scrollHeight
+                });
+                
+                // Convert canvas to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const filename = `PromptQuest_Questions_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.png`;
                     link.download = filename;
                     link.href = url;
                     link.click();

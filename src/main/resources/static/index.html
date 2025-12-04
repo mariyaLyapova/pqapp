@@ -498,6 +498,31 @@
             font-weight: 500;
             margin: 0;
         }
+        .multi-select-search {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 8px;
+            border-bottom: 2px solid #e9ecef;
+            z-index: 10;
+        }
+        .multi-select-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .multi-select-search input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+        }
+        .multi-select-option.hidden {
+            display: none;
+        }
 
         /* Resize stars in difficulty filter labels */
         #difficulty-dropdown .multi-select-option label {
@@ -672,7 +697,12 @@
                                 <span class="selected-area-text" id="selected-area-text">No Areas Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="area-dropdown">
-                                <!-- Area options will be populated here -->
+                                <div class="multi-select-search">
+                                    <input type="text" id="area-search" placeholder="Search areas..." oninput="filterAreaOptions(this.value)">
+                                </div>
+                                <div id="area-options-container">
+                                    <!-- Area options will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -683,7 +713,12 @@
                                 <span class="selected-skills-text" id="selected-skills-text">No Skills Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="skills-dropdown">
-                                <!-- Skill options will be populated here -->
+                                <div class="multi-select-search">
+                                    <input type="text" id="skills-search" placeholder="Search skills..." oninput="filterSkillsOptions(this.value)">
+                                </div>
+                                <div id="skills-options-container">
+                                    <!-- Skill options will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -943,12 +978,12 @@
 
         // Populate filter dropdown options
         function populateFilterDropdowns() {
-            const areaDropdown = document.getElementById('area-dropdown');
-            const skillsDropdown = document.getElementById('skills-dropdown');
+            const areaOptionsContainer = document.getElementById('area-options-container');
+            const skillsOptionsContainer = document.getElementById('skills-options-container');
 
             // Clear existing options
-            areaDropdown.innerHTML = '';
-            skillsDropdown.innerHTML = '';
+            areaOptionsContainer.innerHTML = '';
+            skillsOptionsContainer.innerHTML = '';
 
             // Populate areas with custom multi-select options
             [...availableAreas].sort().forEach(area => {
@@ -968,7 +1003,7 @@
 
                 optionDiv.appendChild(checkbox);
                 optionDiv.appendChild(label);
-                areaDropdown.appendChild(optionDiv);
+                areaOptionsContainer.appendChild(optionDiv);
 
                 // Don't add to selectedAreas - start empty
             });
@@ -991,7 +1026,7 @@
 
                 optionDiv.appendChild(checkbox);
                 optionDiv.appendChild(label);
-                skillsDropdown.appendChild(optionDiv);
+                skillsOptionsContainer.appendChild(optionDiv);
 
                 // Don't add to selectedSkills - start empty
             });
@@ -1252,12 +1287,12 @@
             document.getElementById('question-count').value = '10';
 
             // Update area checkboxes
-            document.querySelectorAll('#area-dropdown input[type="checkbox"]').forEach(checkbox => {
+            document.querySelectorAll('#area-options-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = true;
             });
 
             // Update skill checkboxes
-            document.querySelectorAll('#skills-dropdown input[type="checkbox"]').forEach(checkbox => {
+            document.querySelectorAll('#skills-options-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = true;
             });
 
@@ -1318,18 +1353,34 @@
         function toggleAreaDropdown() {
             const trigger = document.getElementById('area-trigger');
             const dropdown = document.getElementById('area-dropdown');
+            const searchInput = document.getElementById('area-search');
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
+            
+            // Reset search and focus when opening
+            if (dropdown.classList.contains('show')) {
+                searchInput.value = '';
+                filterAreaOptions('');
+                setTimeout(() => searchInput.focus(), 100);
+            }
         }
 
         // Toggle skills dropdown visibility
         function toggleSkillsDropdown() {
             const trigger = document.getElementById('skills-trigger');
             const dropdown = document.getElementById('skills-dropdown');
+            const searchInput = document.getElementById('skills-search');
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
+            
+            // Reset search and focus when opening
+            if (dropdown.classList.contains('show')) {
+                searchInput.value = '';
+                filterSkillsOptions('');
+                setTimeout(() => searchInput.focus(), 100);
+            }
         }
 
         // Toggle difficulty dropdown visibility
@@ -1339,6 +1390,42 @@
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
+        }
+
+        // Filter area options based on search query
+        function filterAreaOptions(searchQuery) {
+            const query = searchQuery.toLowerCase().trim();
+            const areaOptionsContainer = document.getElementById('area-options-container');
+            const options = areaOptionsContainer.querySelectorAll('.multi-select-option');
+            
+            options.forEach(option => {
+                const label = option.querySelector('label');
+                const text = label.textContent.toLowerCase();
+                
+                if (text.includes(query)) {
+                    option.classList.remove('hidden');
+                } else {
+                    option.classList.add('hidden');
+                }
+            });
+        }
+
+        // Filter skills options based on search query
+        function filterSkillsOptions(searchQuery) {
+            const query = searchQuery.toLowerCase().trim();
+            const skillsOptionsContainer = document.getElementById('skills-options-container');
+            const options = skillsOptionsContainer.querySelectorAll('.multi-select-option');
+            
+            options.forEach(option => {
+                const label = option.querySelector('label');
+                const text = label.textContent.toLowerCase();
+                
+                if (text.includes(query)) {
+                    option.classList.remove('hidden');
+                } else {
+                    option.classList.add('hidden');
+                }
+            });
         }
 
         // Update the area dropdown trigger text

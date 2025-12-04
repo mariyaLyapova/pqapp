@@ -1167,59 +1167,33 @@
             const questionCountSelect = document.getElementById('question-count');
             const selectedQuestionCount = questionCountSelect.value;
 
-            let filterText = '';
-            const areasArray = [...selectedAreas];
+            // Calculate total available questions matching current filters (before count limit)
+            const availableMatchingQuestions = allQuestions.filter(question => {
+                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
+            });
+
+            const totalAvailable = availableMatchingQuestions.length;
+            const selectedCount = selectedQuestionCount === 'all' ? totalAvailable : parseInt(selectedQuestionCount);
+            const actualCount = Math.min(selectedCount, totalAvailable);
+
             const skillsArray = [...selectedSkills];
-            const difficultiesArray = [...selectedDifficulties].sort((a, b) => a - b);
 
-            // Build filter text components
-            let areaText = '';
-            let skillText = '';
-            let difficultyText = '';
-            let countText = '';
-
-            if (selectedAreas.size > 0 && selectedAreas.size < availableAreas.size) {
-                areaText = areasArray.length > 2 ?
-                    `${areasArray.slice(0, 2).join(', ')} + ${areasArray.length - 2} more` :
-                    areasArray.join(', ');
-            }
-
-            if (selectedSkills.size > 0 && selectedSkills.size < availableSkills.size) {
-                skillText = skillsArray.length > 2 ?
-                    `${skillsArray.slice(0, 2).join(', ')} + ${skillsArray.length - 2} more` :
-                    skillsArray.join(', ');
-            }
-
-            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
-                if (difficultiesArray.length === 1) {
-                    difficultyText = `Difficulty ${difficultiesArray[0]}`;
-                } else if (difficultiesArray.length <= 3) {
-                    difficultyText = `Difficulties ${difficultiesArray.join(', ')}`;
-                } else {
-                    difficultyText = `Difficulties ${difficultiesArray.slice(0, 2).join(', ')} + ${difficultiesArray.length - 2} more`;
-                }
-            }
-
-            if (selectedQuestionCount !== 'all') {
-                countText = `${selectedQuestionCount} questions`;
-            }
-
-            // Combine filter text
-            const filterParts = [areaText, skillText, difficultyText, countText].filter(part => part);
-            if (filterParts.length > 0) {
-                filterText = filterParts.join(' - ');
+            // Build the preview text
+            let previewText = '';
+            
+            if (selectedSkills.size === 0 && selectedAreas.size === 0 && selectedDifficulties.size === 0) {
+                // No filters applied
+                previewText = `Showing ${actualCount} of ${totalAvailable} available`;
             } else {
-                filterText = 'All questions';
+                // Filters applied - show count of selected skills/areas (excluding difficulty)
+                const filterCount = selectedSkills.size + selectedAreas.size;
+                previewText = `Showing ${actualCount} of ${totalAvailable} available (${filterCount} filters selected)`;
             }
 
-            const questionCount = questions.length;
-            const totalCount = allQuestions.length;
-
-            if (questionCount === totalCount && selectedQuestionCount === 'all') {
-                previewElement.textContent = `Showing all ${totalCount} questions`;
-            } else {
-                previewElement.textContent = `Showing ${questionCount} questions (${filterText})`;
-            }
+            previewElement.textContent = previewText;
         }
 
         // Update stats display based on filtered questions

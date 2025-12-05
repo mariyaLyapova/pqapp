@@ -471,7 +471,7 @@
             display: block;
         }
         .multi-select-option {
-            padding: 10px 12px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             cursor: pointer;
@@ -485,18 +485,122 @@
             background: #f8f9fa;
         }
         .multi-select-option input[type="checkbox"] {
-            margin-right: 10px;
-            width: 16px;
-            height: 16px;
+            margin-right: 8px;
+            width: 14px;
+            height: 14px;
             accent-color: #007bff;
         }
         .multi-select-option label {
             flex: 1;
             cursor: pointer;
             color: #495057;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             margin: 0;
+        }
+        .multi-select-search {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 8px;
+            border-bottom: 2px solid #e9ecef;
+            z-index: 10;
+        }
+        .multi-select-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .multi-select-search input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+        }
+        .multi-select-option.hidden {
+            display: none;
+        }
+        .export-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .export-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .export-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            word-wrap: break-word;
+        }
+        .export-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .export-stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .export-stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .export-stat-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .export-level {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+        .export-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        .export-btn-small {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-left: 5px;
+        }
+        .export-btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102,126,234,0.3);
+        }
+
+        /* Resize stars in difficulty filter labels */
+        #difficulty-dropdown .multi-select-option label {
+            font-size: 11px;
         }
         .selected-skills-text {
             flex: 1;
@@ -667,7 +771,12 @@
                                 <span class="selected-area-text" id="selected-area-text">No Areas Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="area-dropdown">
-                                <!-- Area options will be populated here -->
+                                <div class="multi-select-search">
+                                    <input type="text" id="area-search" placeholder="Search areas..." oninput="filterAreaOptions(this.value)">
+                                </div>
+                                <div id="area-options-container">
+                                    <!-- Area options will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -678,7 +787,44 @@
                                 <span class="selected-skills-text" id="selected-skills-text">No Skills Selected</span>
                             </div>
                             <div class="multi-select-dropdown" id="skills-dropdown">
-                                <!-- Skill options will be populated here -->
+                                <div class="multi-select-search">
+                                    <input type="text" id="skills-search" placeholder="Search skills..." oninput="filterSkillsOptions(this.value)">
+                                </div>
+                                <div id="skills-options-container">
+                                    <!-- Skill options will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-grid-bottom">
+                    <div class="filter-group">
+                        <label for="difficulty-filter">Difficulty:</label>
+                        <div class="custom-multi-select">
+                            <div class="multi-select-trigger" id="difficulty-trigger" tabindex="0" onclick="toggleDifficultyDropdown()">
+                                <span class="selected-difficulty-text" id="selected-difficulty-text">No Difficulties Selected</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="difficulty-dropdown">
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-1" value="1" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-1">✦ Very Easy (1)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-2" value="2" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-2">✦✦ Easy (2)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-3" value="3" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-3">✦✦✦ Medium (3)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-4" value="4" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-4">✦✦✦✦ Hard (4)</label>
+                                </div>
+                                <div class="multi-select-option">
+                                    <input type="checkbox" id="difficulty-checkbox-5" value="5" onchange="onDifficultyCheckboxChange(event)">
+                                    <label for="difficulty-checkbox-5">✦✦✦✦✦ Very Hard (5)</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -709,7 +855,11 @@
             <div id="quiz-stats" class="quiz-stats hidden">
                 <div class="stat-item">
                     <div class="stat-number" id="total-questions">0</div>
-                    <div class="stat-label">Total Questions</div>
+                    <div class="stat-label">Filtered Questions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="database-total">0</div>
+                    <div class="stat-label">Database Total</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="difficulty-range">1-5</div>
@@ -764,11 +914,22 @@
 
         <!-- Results Screen -->
         <div id="results-container" class="hidden">
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button type="button" class="export-btn-small" onclick="exportResultsAsPNG()">📊 Export Stats (PNG)</button>
+                <button type="button" class="export-btn-small" onclick="exportQuestionsAsPDF()">📝 Export Questions (PDF)</button>
+            </div>
             <h2 id="results-title">Quiz Results</h2>
             <div id="score-display"></div>
             <div id="results-details"></div>
             <div class="buttons">
                 <button type="button" onclick="startNewQuiz()">Take Another Quiz</button>
+            </div>
+        </div>
+        
+        <!-- Hidden container for PDF export -->
+        <div id="export-container" style="position: absolute; left: -9999px; top: 0;">
+            <div id="export-content" style="width: 750px; max-width: 750px; padding: 0; background: white; font-family: Arial, sans-serif; box-sizing: border-box;">
+                <!-- Content will be generated dynamically -->
             </div>
         </div>
     </div>
@@ -779,12 +940,14 @@
         let userName = '';
         let currentQuestionIndex = 0;
         let userAnswers = {};
+        let quizResults = null; // Store quiz results for export
 
         // Filter state
         let availableAreas = new Set();
         let availableSkills = new Set();
         let selectedAreas = new Set(); // Track selected areas
         let selectedSkills = new Set(); // Track selected skills
+        let selectedDifficulties = new Set(); // Track selected difficulties (default: none selected)
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -853,6 +1016,9 @@
 
                 document.getElementById('quiz-description').textContent = description;
 
+                // Set the database total (this doesn't change with filters)
+                document.getElementById('database-total').textContent = totalQuestions;
+
                 // Don't set initial stats here - let applyFilters() handle it
                 document.getElementById('quiz-stats').classList.remove('hidden');
                 document.getElementById('filter-section').classList.remove('hidden');
@@ -898,12 +1064,12 @@
 
         // Populate filter dropdown options
         function populateFilterDropdowns() {
-            const areaDropdown = document.getElementById('area-dropdown');
-            const skillsDropdown = document.getElementById('skills-dropdown');
+            const areaOptionsContainer = document.getElementById('area-options-container');
+            const skillsOptionsContainer = document.getElementById('skills-options-container');
 
             // Clear existing options
-            areaDropdown.innerHTML = '';
-            skillsDropdown.innerHTML = '';
+            areaOptionsContainer.innerHTML = '';
+            skillsOptionsContainer.innerHTML = '';
 
             // Populate areas with custom multi-select options
             [...availableAreas].sort().forEach(area => {
@@ -923,7 +1089,7 @@
 
                 optionDiv.appendChild(checkbox);
                 optionDiv.appendChild(label);
-                areaDropdown.appendChild(optionDiv);
+                areaOptionsContainer.appendChild(optionDiv);
 
                 // Don't add to selectedAreas - start empty
             });
@@ -946,7 +1112,7 @@
 
                 optionDiv.appendChild(checkbox);
                 optionDiv.appendChild(label);
-                skillsDropdown.appendChild(optionDiv);
+                skillsOptionsContainer.appendChild(optionDiv);
 
                 // Don't add to selectedSkills - start empty
             });
@@ -962,11 +1128,12 @@
             let filteredQuestions;
 
             if (questionCount === 'all') {
-                // Filter questions based on area and skill selections
+                // Filter questions based on area, skill, and difficulty selections
                 filteredQuestions = allQuestions.filter(question => {
                     const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
                     const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
-                    return areaMatch && skillMatch;
+                    const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                    return areaMatch && skillMatch && difficultyMatch;
                 });
             } else {
                 // Smart filtering to ensure exact count
@@ -988,41 +1155,56 @@
             // Clear any previous filter messages
             clearFilterMessage();
 
-            // Try 1: Apply both area and skill filters
+            // Try 1: Apply all filters (area, skill, and difficulty)
             let filtered = allQuestions.filter(question => {
                 const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
                 const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
-                return areaMatch && skillMatch;
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
             });
 
             if (filtered.length >= targetCount) {
                 return shuffleArray(filtered).slice(0, targetCount);
             }
 
-            // Try 2: Relax one filter - prioritize skill over area if both are selected
+            // Try 2: Relax difficulty filter first (keep area and skill)
+            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
+                filtered = allQuestions.filter(question => {
+                    const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                    const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                    return areaMatch && skillMatch;
+                });
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Relaxed difficulty filter to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 3: Relax one more filter - prioritize skill over area if both are selected
             if (selectedSkills.size > 0 && selectedAreas.size > 0) {
-                // Try with skill filter only
+                // Try with skill filter only (+ all difficulties)
                 filtered = allQuestions.filter(question =>
                     selectedSkills.has(question.skill)
                 );
 
                 if (filtered.length >= targetCount) {
-                    showFilterMessage(`Relaxed area filter to get ${targetCount} questions. Using skill filter only.`, 'info');
+                    showFilterMessage(`Relaxed area and difficulty filters to get ${targetCount} questions. Using skill filter only.`, 'info');
                     return shuffleArray(filtered).slice(0, targetCount);
                 }
 
-                // Try with area filter only
+                // Try with area filter only (+ all difficulties)
                 filtered = allQuestions.filter(question =>
                     selectedAreas.has(question.area)
                 );
 
                 if (filtered.length >= targetCount) {
-                    showFilterMessage(`Relaxed skill filter to get ${targetCount} questions. Using area filter only.`, 'info');
+                    showFilterMessage(`Relaxed skill and difficulty filters to get ${targetCount} questions. Using area filter only.`, 'info');
                     return shuffleArray(filtered).slice(0, targetCount);
                 }
             }
 
-            // Try 3: Use only skill filter if selected
+            // Try 4: Use only skill filter if selected
             if (selectedSkills.size > 0) {
                 filtered = allQuestions.filter(question =>
                     selectedSkills.has(question.skill)
@@ -1034,7 +1216,7 @@
                 }
             }
 
-            // Try 4: Use only area filter if selected
+            // Try 5: Use only area filter if selected
             if (selectedAreas.size > 0) {
                 filtered = allQuestions.filter(question =>
                     selectedAreas.has(question.area)
@@ -1046,7 +1228,19 @@
                 }
             }
 
-            // Try 5: Use all questions (no filters)
+            // Try 6: Use only difficulty filter if selected
+            if (selectedDifficulties.size > 0 && selectedDifficulties.size < 5) {
+                filtered = allQuestions.filter(question =>
+                    selectedDifficulties.has(question.difficulty)
+                );
+
+                if (filtered.length >= targetCount) {
+                    showFilterMessage(`Using difficulty filter only to get ${targetCount} questions.`, 'info');
+                    return shuffleArray(filtered).slice(0, targetCount);
+                }
+            }
+
+            // Try 7: Use all questions (no filters)
             if (allQuestions.length >= targetCount) {
                 showFilterMessage(`Filters relaxed completely to get ${targetCount} questions from all available questions.`, 'warning');
                 return shuffleArray(allQuestions).slice(0, targetCount);
@@ -1094,54 +1288,49 @@
             const questionCountSelect = document.getElementById('question-count');
             const selectedQuestionCount = questionCountSelect.value;
 
-            let filterText = '';
-            const areasArray = [...selectedAreas];
+            // Calculate total available questions matching current filters (before count limit)
+            const availableMatchingQuestions = allQuestions.filter(question => {
+                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
+            });
+
+            const totalAvailable = availableMatchingQuestions.length;
+            const selectedCount = selectedQuestionCount === 'all' ? totalAvailable : parseInt(selectedQuestionCount);
+            const actualCount = Math.min(selectedCount, totalAvailable);
+
             const skillsArray = [...selectedSkills];
 
-            // Build filter text components
-            let areaText = '';
-            let skillText = '';
-            let countText = '';
-
-            if (selectedAreas.size > 0 && selectedAreas.size < availableAreas.size) {
-                areaText = areasArray.length > 2 ?
-                    `${areasArray.slice(0, 2).join(', ')} + ${areasArray.length - 2} more` :
-                    areasArray.join(', ');
-            }
-
-            if (selectedSkills.size > 0 && selectedSkills.size < availableSkills.size) {
-                skillText = skillsArray.length > 2 ?
-                    `${skillsArray.slice(0, 2).join(', ')} + ${skillsArray.length - 2} more` :
-                    skillsArray.join(', ');
-            }
-
-            if (selectedQuestionCount !== 'all') {
-                countText = `${selectedQuestionCount} questions`;
-            }
-
-            // Combine filter text
-            const filterParts = [areaText, skillText, countText].filter(part => part);
-            if (filterParts.length > 0) {
-                filterText = filterParts.join(' - ');
+            // Build the preview text
+            let previewText = '';
+            
+            if (selectedSkills.size === 0 && selectedAreas.size === 0 && selectedDifficulties.size === 0) {
+                // No filters applied
+                previewText = `Showing ${actualCount} of ${totalAvailable} available`;
             } else {
-                filterText = 'All questions';
+                // Filters applied - show count of selected skills/areas (excluding difficulty)
+                const filterCount = selectedSkills.size + selectedAreas.size;
+                previewText = `Showing ${actualCount} of ${totalAvailable} available (${filterCount} filters selected)`;
             }
 
-            const questionCount = questions.length;
-            const totalCount = allQuestions.length;
-
-            if (questionCount === totalCount && selectedQuestionCount === 'all') {
-                previewElement.textContent = `Showing all ${totalCount} questions`;
-            } else {
-                previewElement.textContent = `Showing ${questionCount} questions (${filterText})`;
-            }
+            previewElement.textContent = previewText;
         }
 
         // Update stats display based on filtered questions
         function updateStatsDisplay() {
             const filteredSkills = [...new Set(questions.map(q => q.skill))];
             const filteredAreas = [...new Set(questions.map(q => q.area))];
-            const difficulties = questions.map(q => q.difficulty);
+
+            // Get difficulty range from all questions matching the current filters, not just the final question set
+            const availableQuestions = allQuestions.filter(question => {
+                const areaMatch = selectedAreas.size === 0 || selectedAreas.has(question.area);
+                const skillMatch = selectedSkills.size === 0 || selectedSkills.has(question.skill);
+                const difficultyMatch = selectedDifficulties.size === 0 || selectedDifficulties.has(question.difficulty);
+                return areaMatch && skillMatch && difficultyMatch;
+            });
+
+            const difficulties = availableQuestions.map(q => q.difficulty);
 
             if (difficulties.length > 0) {
                 // Ensure difficulties are numbers and filter out any invalid values
@@ -1177,21 +1366,30 @@
             selectedSkills.clear();
             availableSkills.forEach(skill => selectedSkills.add(skill));
 
+            // Clear difficulties (no difficulties selected)
+            selectedDifficulties.clear();
+
             // Reset question count to default (10 questions)
             document.getElementById('question-count').value = '10';
 
             // Update area checkboxes
-            document.querySelectorAll('#area-dropdown input[type="checkbox"]').forEach(checkbox => {
+            document.querySelectorAll('#area-options-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = true;
             });
 
             // Update skill checkboxes
-            document.querySelectorAll('#skills-dropdown input[type="checkbox"]').forEach(checkbox => {
+            document.querySelectorAll('#skills-options-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = true;
+            });
+
+            // Update difficulty checkboxes (uncheck all)
+            document.querySelectorAll('#difficulty-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
             });
 
             updateAreaDropdownText();
             updateSkillsDropdownText();
+            updateDifficultyDropdownText();
             applyFilters();
         }
 
@@ -1223,22 +1421,97 @@
             applyFilters();
         }
 
+        // Handle difficulty checkbox changes
+        function onDifficultyCheckboxChange(event) {
+            const difficulty = parseInt(event.target.value);
+
+            if (event.target.checked) {
+                selectedDifficulties.add(difficulty);
+            } else {
+                selectedDifficulties.delete(difficulty);
+            }
+
+            updateDifficultyDropdownText();
+            applyFilters();
+        }
+
         // Toggle area dropdown visibility
         function toggleAreaDropdown() {
             const trigger = document.getElementById('area-trigger');
             const dropdown = document.getElementById('area-dropdown');
+            const searchInput = document.getElementById('area-search');
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
+            
+            // Reset search and focus when opening
+            if (dropdown.classList.contains('show')) {
+                searchInput.value = '';
+                filterAreaOptions('');
+                setTimeout(() => searchInput.focus(), 100);
+            }
         }
 
         // Toggle skills dropdown visibility
         function toggleSkillsDropdown() {
             const trigger = document.getElementById('skills-trigger');
             const dropdown = document.getElementById('skills-dropdown');
+            const searchInput = document.getElementById('skills-search');
 
             trigger.classList.toggle('open');
             dropdown.classList.toggle('show');
+            
+            // Reset search and focus when opening
+            if (dropdown.classList.contains('show')) {
+                searchInput.value = '';
+                filterSkillsOptions('');
+                setTimeout(() => searchInput.focus(), 100);
+            }
+        }
+
+        // Toggle difficulty dropdown visibility
+        function toggleDifficultyDropdown() {
+            const trigger = document.getElementById('difficulty-trigger');
+            const dropdown = document.getElementById('difficulty-dropdown');
+
+            trigger.classList.toggle('open');
+            dropdown.classList.toggle('show');
+        }
+
+        // Filter area options based on search query
+        function filterAreaOptions(searchQuery) {
+            const query = searchQuery.toLowerCase().trim();
+            const areaOptionsContainer = document.getElementById('area-options-container');
+            const options = areaOptionsContainer.querySelectorAll('.multi-select-option');
+            
+            options.forEach(option => {
+                const label = option.querySelector('label');
+                const text = label.textContent.toLowerCase();
+                
+                if (text.includes(query)) {
+                    option.classList.remove('hidden');
+                } else {
+                    option.classList.add('hidden');
+                }
+            });
+        }
+
+        // Filter skills options based on search query
+        function filterSkillsOptions(searchQuery) {
+            const query = searchQuery.toLowerCase().trim();
+            const skillsOptionsContainer = document.getElementById('skills-options-container');
+            const options = skillsOptionsContainer.querySelectorAll('.multi-select-option');
+            
+            options.forEach(option => {
+                const label = option.querySelector('label');
+                const text = label.textContent.toLowerCase();
+                
+                if (text.includes(query)) {
+                    option.classList.remove('hidden');
+                } else {
+                    option.classList.add('hidden');
+                }
+            });
         }
 
         // Update the area dropdown trigger text
@@ -1279,6 +1552,25 @@
             }
         }
 
+        // Update the difficulty dropdown trigger text
+        function updateDifficultyDropdownText() {
+            const triggerText = document.getElementById('selected-difficulty-text');
+            const difficultiesArray = [...selectedDifficulties].sort((a, b) => a - b);
+
+            if (selectedDifficulties.size === 0) {
+                triggerText.textContent = 'No Difficulties Selected';
+            } else if (selectedDifficulties.size === 5) {
+                triggerText.textContent = 'All Difficulties';
+            } else if (difficultiesArray.length === 1) {
+                triggerText.textContent = `Difficulty ${difficultiesArray[0]}`;
+            } else if (difficultiesArray.length === 2) {
+                triggerText.textContent = `Difficulties ${difficultiesArray.join(', ')}`;
+            } else {
+                const firstTwo = difficultiesArray.slice(0, 2).join(', ');
+                triggerText.textContent = `Difficulties ${firstTwo} +${difficultiesArray.length - 2} more`;
+            }
+        }
+
         // Setup click outside handler for dropdown
         function setupDropdownClickOutside() {
             document.addEventListener('click', function(event) {
@@ -1301,6 +1593,16 @@
                     skillsTrigger.classList.remove('open');
                     skillsDropdown.classList.remove('show');
                 }
+
+                // Handle difficulty dropdown
+                const difficultyTrigger = document.getElementById('difficulty-trigger');
+                const difficultyDropdown = document.getElementById('difficulty-dropdown');
+                const difficultyCustomSelect = difficultyTrigger?.closest('.custom-multi-select');
+
+                if (difficultyCustomSelect && !difficultyCustomSelect.contains(event.target)) {
+                    difficultyTrigger.classList.remove('open');
+                    difficultyDropdown.classList.remove('show');
+                }
             });
 
             // Also close on Escape key
@@ -1315,6 +1617,11 @@
                     const skillsDropdown = document.getElementById('skills-dropdown');
                     skillsTrigger.classList.remove('open');
                     skillsDropdown.classList.remove('show');
+
+                    const difficultyTrigger = document.getElementById('difficulty-trigger');
+                    const difficultyDropdown = document.getElementById('difficulty-dropdown');
+                    difficultyTrigger.classList.remove('open');
+                    difficultyDropdown.classList.remove('show');
                 }
             });
         }
@@ -1472,6 +1779,9 @@
         }
 
         function displayResults(results) {
+            // Store results globally for export
+            quizResults = results;
+            
             const scoreDisplay = document.getElementById('score-display');
             const resultsDetails = document.getElementById('results-details');
             const resultsTitle = document.getElementById('results-title');
@@ -1539,6 +1849,205 @@
             }
         }
 
+        async function exportResultsAsPNG() {
+            if (!quizResults) {
+                alert('No quiz results available to export');
+                return;
+            }
+            
+            const exportContent = document.getElementById('export-content');
+            
+            // Use actual quiz results
+            const totalQuestions = quizResults.totalQuestions;
+            const correctAnswers = quizResults.correctAnswers;
+            const incorrectAnswers = totalQuestions - correctAnswers;
+            const percentage = Math.round(quizResults.score);
+            
+            // Calculate average difficulty only from correctly answered questions
+            const correctlyAnsweredQuestions = quizResults.questionResults.filter(q => q.isCorrect);
+            const avgDifficulty = correctlyAnsweredQuestions.length > 0 
+                ? Math.round(correctlyAnsweredQuestions.reduce((sum, q) => sum + q.difficulty, 0) / correctlyAnsweredQuestions.length)
+                : 0;
+            
+            // Determine level based on score and difficulty
+            let level = '';
+            if (percentage >= 90 && avgDifficulty >= 4) level = '🏆 Expert Master';
+            else if (percentage >= 90) level = '⭐ Expert';
+            else if (percentage >= 75 && avgDifficulty >= 3.5) level = '🎯 Advanced Pro';
+            else if (percentage >= 75) level = '📚 Advanced';
+            else if (percentage >= 60) level = '✨ Intermediate';
+            else if (percentage >= 40) level = '🌱 Beginner+';
+            else level = '🔰 Beginner';
+            
+            // Generate export content
+            const currentDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            exportContent.innerHTML = `
+                <div class="export-stats" style="max-width: 700px; margin: 0 auto; box-sizing: border-box;">
+                    <div class="export-header">
+                        <h1>🎯 PromptQuest Results</h1>
+                        <p style="font-size: 1.3em; margin: 10px 0; word-wrap: break-word;">${userName}</p>
+                        <p style="opacity: 0.8;">${currentDate}</p>
+                    </div>
+                    
+                    <div class="export-level">
+                        ${level}
+                    </div>
+                    
+                    <div class="export-stats-grid">
+                        <div class="export-stat-box">
+                            <div class="export-stat-label">Score</div>
+                            <div class="export-stat-number">${percentage}%</div>
+                            <div style="font-size: 1.1em;">${correctAnswers}/${totalQuestions}</div>
+                        </div>
+                        <div class="export-stat-box">
+                            <div class="export-stat-label">Avg Difficulty</div>
+                            <div class="export-stat-number">${avgDifficulty}</div>
+                            <div style="font-size: 1.1em;">${'★'.repeat(Math.round(avgDifficulty))}${'☆'.repeat(5 - Math.round(avgDifficulty))}</div>
+                        </div>
+                        <div class="export-stat-box">
+                            <div class="export-stat-label">✓ Correct</div>
+                            <div class="export-stat-number" style="color: #4ade80;">${correctAnswers}</div>
+                        </div>
+                        <div class="export-stat-box">
+                            <div class="export-stat-label">✗ Incorrect</div>
+                            <div class="export-stat-number" style="color: #f87171;">${incorrectAnswers}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="export-footer">
+                        <p>Keep learning and improving! 📚</p>
+                        <p style="font-size: 0.8em;">Generated by PromptQuest Quiz App</p>
+                    </div>
+                </div>
+            `;
+            
+            // Use html2canvas to convert to PNG
+            try {
+                const canvas = await html2canvas(exportContent, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    width: 750,
+                    windowWidth: 750
+                });
+                
+                // Convert canvas to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const filename = `PromptQuest_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.png`;
+                    link.download = filename;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            } catch (error) {
+                alert('Error generating PNG: ' + error.message);
+            }
+        }
+
+        async function exportQuestionsAsPDF() {
+            if (!quizResults) {
+                alert('No quiz results available to export');
+                return;
+            }
+            
+            const exportContent = document.getElementById('export-content');
+            
+            // Generate export content with all questions and answers
+            const currentDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            let questionsHTML = '';
+            quizResults.questionResults.forEach((result, index) => {
+                const isCorrect = result.isCorrect;
+                const statusIcon = isCorrect ? '✅' : '❌';
+                const statusColor = isCorrect ? '#4ade80' : '#f87171';
+                
+                questionsHTML += `
+                    <div style="margin-bottom: 10px; padding: 8px; background: #f9fafb; border-radius: 4px; border-left: 3px solid ${statusColor}; page-break-inside: avoid; font-size: 0.8em; word-wrap: break-word; overflow-wrap: break-word;">
+                        <div style="margin-bottom: 5px; word-wrap: break-word; overflow-wrap: break-word;">
+                            <span style="font-size: 1em; margin-right: 4px;">${statusIcon}</span>
+                            <strong style="font-size: 0.95em;">Q${index + 1}:</strong>
+                            <span style="margin-left: 4px; line-height: 1.3;">${result.question}</span>
+                        </div>
+                        
+                        <div style="margin: 5px 0 5px 15px;">
+                            <div style="padding: 3px 6px; margin: 2px 0; background: ${result.correctAnswer === 'A' ? '#d1fae5' : (result.userAnswer === 'A' ? '#fee2e2' : 'white')}; border-radius: 3px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">
+                                <strong>A.</strong> ${result.optionA}
+                            </div>
+                            <div style="padding: 3px 6px; margin: 2px 0; background: ${result.correctAnswer === 'B' ? '#d1fae5' : (result.userAnswer === 'B' ? '#fee2e2' : 'white')}; border-radius: 3px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">
+                                <strong>B.</strong> ${result.optionB}
+                            </div>
+                            <div style="padding: 3px 6px; margin: 2px 0; background: ${result.correctAnswer === 'C' ? '#d1fae5' : (result.userAnswer === 'C' ? '#fee2e2' : 'white')}; border-radius: 3px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">
+                                <strong>C.</strong> ${result.optionC}
+                            </div>
+                            <div style="padding: 3px 6px; margin: 2px 0; background: ${result.correctAnswer === 'D' ? '#d1fae5' : (result.userAnswer === 'D' ? '#fee2e2' : 'white')}; border-radius: 3px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">
+                                <strong>D.</strong> ${result.optionD}
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 5px 0 5px 15px; display: flex; gap: 6px; flex-wrap: wrap;">
+                            <span style="padding: 2px 6px; background: #e0f2fe; border-radius: 3px; font-size: 0.9em;">
+                                <strong style="color: #0369a1;">✓</strong> ${result.correctAnswer}
+                            </span>
+                            ${result.userAnswer ? `
+                                <span style="padding: 2px 6px; background: ${isCorrect ? '#d1fae5' : '#fee2e2'}; border-radius: 3px; font-size: 0.9em;">
+                                    <strong style="color: ${isCorrect ? '#15803d' : '#991b1b'};">You:</strong> ${result.userAnswer}
+                                </span>
+                            ` : ''}
+                            <span style="padding: 2px 6px; background: #f3f4f6; border-radius: 3px; color: #6b7280; font-size: 0.85em;">
+                                ${result.area} | ${result.skill} | ${'★'.repeat(result.difficulty)}
+                            </span>
+                        </div>
+                        
+                        <div style="margin: 5px 0 0 15px; padding: 4px 6px; background: #fef3c7; border-radius: 3px; font-style: italic; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">
+                            <strong>💡</strong> ${result.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            exportContent.innerHTML = `
+                <div style="padding: 15px; background: white; font-family: Arial, sans-serif; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
+                    <div style="text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #667eea;">
+                        <h1 style="margin: 0; color: #667eea; font-size: 1.4em;">📚 PromptQuest - Questions & Answers</h1>
+                        <p style="font-size: 0.9em; margin: 5px 0; color: #333;">${userName} | ${currentDate} | Score: ${quizResults.correctAnswers}/${quizResults.totalQuestions} (${Math.round(quizResults.score)}%)</p>
+                    </div>
+                    
+                    ${questionsHTML}
+                    
+                    <div style="text-align: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 0.75em;">
+                        <p style="margin: 0;">Generated by PromptQuest Quiz App</p>
+                    </div>
+                </div>
+            `;
+            
+            // Use html2pdf to convert to PDF
+            try {
+                const filename = `PromptQuest_Questions_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                const opt = {
+                    margin: [8, 8, 8, 8],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: { scale: 2, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'], before: '.page-break' }
+                };
+                await html2pdf().set(opt).from(exportContent).save();
+            } catch (error) {
+                alert('Error generating PDF: ' + error.message);
+            }
+        }
+
         function startNewQuiz() {
             // Reset to welcome screen
             document.getElementById('results-container').classList.add('hidden');
@@ -1559,5 +2068,7 @@
             userAnswers = {};
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>

@@ -5,11 +5,13 @@ A comprehensive Spring Boot quiz application with a complete web interface for t
 ## Features
 
 - 🎯 Interactive web-based quiz interface with advanced filtering
-- 🔍 **Smart Question Filtering**: Filter questions by area, skills, and question count
-- 🎛️ **Multi-Select Filters**: Choose multiple areas and skills for customized quizzes
+- 🔍 **Smart Question Filtering**: Filter questions by area, skills, difficulty, and question count
+- 🎛️ **Multi-Select Filters**: Choose multiple areas, skills, and difficulty levels for customized quizzes
 - 📊 **Dynamic Question Count**: Select from 5 to 30 questions or use all available
 - 🎲 **Random Question Selection**: Questions are randomly shuffled when count is limited
 - 📈 **Real-time Filter Preview**: See exactly how many questions match your filters
+- 📥 **Export Results**: Export quiz statistics as PNG and detailed questions/answers as PDF
+- 🏆 **Performance Tracking**: Level-based achievements based on score and difficulty
 - 🛠️ Admin panel for question management and file uploads
 - 📊 Creates SQLite database from JSON files
 - 🚀 Spring Boot + JPA/Hibernate integration
@@ -82,7 +84,12 @@ The quiz interface includes powerful filtering capabilities to customize your qu
    - Support for multi-skill selection (e.g., "Java + Spring Boot" for framework-specific tests)
    - Smart text display shows selected skills with "+X more" for multiple selections
 
-3. **Question Count Filter**
+3. **Difficulty Filter (Multi-Select)**
+   - Select specific difficulty levels (1-5 stars)
+   - Choose multiple difficulty levels for varied challenge
+   - Visual star ratings for easy difficulty identification
+
+4. **Question Count Filter**
    - Choose exactly how many questions for your quiz
    - Options: 5, 10, 15, 20, 25, 30 questions, or all available
    - Default: 10 questions for optimal quiz length
@@ -99,6 +106,35 @@ The quiz interface includes powerful filtering capabilities to customize your qu
 - **Full Stack Assessment**: Select "Frontend, Backend" areas + relevant skills + 25 questions
 - **Quick Skills Check**: Select specific skill + 5 questions for rapid assessment
 - **Comprehensive Review**: Select "All Areas" + "All Skills" + 30 questions for thorough testing
+- **Difficulty-Focused Practice**: Select difficulty levels 4-5 for advanced challenges
+
+### Export and Results
+
+After completing a quiz, you can export your results in two formats:
+
+#### 📊 Export Stats (PNG)
+- Beautiful visual summary of your performance
+- Shows score percentage, correct/incorrect answers
+- Displays average difficulty of correctly answered questions
+- Achievement level based on performance (Beginner to Expert Master)
+- Ideal for sharing on social media or portfolios
+
+#### 📝 Export Questions (PDF)
+- Comprehensive multi-page PDF with all questions and answers
+- Compact layout fitting multiple questions per page
+- Color-coded correct (green) and incorrect (red) answers
+- Includes your answers, correct answers, and explanations
+- Metadata showing area, skill, and difficulty for each question
+- Perfect for review and learning from mistakes
+
+#### 🏆 Achievement Levels
+- **🏆 Expert Master**: 90%+ score with average difficulty 4+
+- **⭐ Expert**: 90%+ score
+- **🎯 Advanced Pro**: 75%+ score with average difficulty 3.5+
+- **📚 Advanced**: 75%+ score
+- **✨ Intermediate**: 60%+ score
+- **🌱 Beginner+**: 40%+ score
+- **🔰 Beginner**: Below 40%
 
 #### 🎨 User Experience
 

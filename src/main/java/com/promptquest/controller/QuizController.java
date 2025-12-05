@@ -75,6 +75,10 @@ public class QuizController {
                 questionResult.put("optionB", question.getOptionB());
                 questionResult.put("optionC", question.getOptionC());
                 questionResult.put("optionD", question.getOptionD());
+                questionResult.put("difficulty", question.getDifficulty());
+                questionResult.put("area", question.getArea());
+                questionResult.put("skill", question.getSkill());
+                questionResult.put("degree", question.getDegree());
 
                 questionResults.add(questionResult);
             }

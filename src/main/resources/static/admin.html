@@ -190,9 +190,9 @@
         }
 
         .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
             margin-top: 20px;
         }
 
@@ -202,6 +202,8 @@
             padding: 20px;
             text-align: center;
             border: 1px solid #e6f3ff;
+            flex: 1;
+            min-width: 0;
         }
 
         .stat-number {
@@ -225,6 +227,135 @@
 
         .back-link:hover {
             text-decoration: underline;
+        }
+
+        .toggle-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            text-align: left;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #475569;
+        }
+
+        #toggleIcon {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        #toggleIcon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .table-container {
+            margin-top: 20px;
+            background: #f8fafe;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #64748b;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .questions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .questions-table th {
+            background: #64748b;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .questions-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e6f3ff;
+        }
+
+        .questions-table tbody tr:hover {
+            background: #f0f8ff;
+        }
+
+        .questions-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .page-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #475569;
+        }
+
+        .page-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        #pageInfo {
+            color: #666;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -284,8 +415,52 @@
                         <div class="stat-label">Areas</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number" id="degreesCount">-</div>
-                        <div class="stat-label">Degrees</div>
+                        <div class="stat-number" id="difficultyLevels">-</div>
+                        <div class="stat-label">Difficulty Levels</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Database Questions</h2>
+                <button class="toggle-btn" id="toggleTableBtn" onclick="toggleQuestionsTable()">
+                    <span id="toggleIcon">▼</span> Show Questions
+                </button>
+                
+                <div class="table-container" id="tableContainer" style="display: none;">
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="filterTable()">
+                        </div>
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Showing 0-0 of 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="questions-table" id="questionsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Question</th>
+                                    <th>Area</th>
+                                    <th>Skill</th>
+                                    <th>Difficulty</th>
+                                    <th>Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <button class="page-btn" id="prevBtn" onclick="changePage(-1)" disabled>← Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button class="page-btn" id="nextBtn" onclick="changePage(1)" disabled>Next →</button>
                     </div>
                 </div>
             </div>
@@ -443,7 +618,24 @@
                     document.getElementById('totalQuestions').textContent = stats.totalQuestions || 0;
                     document.getElementById('skillsCount').textContent = (stats.skills?.length) || 0;
                     document.getElementById('areasCount').textContent = (stats.areas?.length) || 0;
-                    document.getElementById('degreesCount').textContent = (stats.degrees?.length) || 0;
+                    
+                    // Calculate difficulty levels range
+                    if (stats.difficultyDistribution) {
+                        const difficulties = Object.keys(stats.difficultyDistribution)
+                            .filter(key => stats.difficultyDistribution[key] > 0)
+                            .map(Number)
+                            .sort((a, b) => a - b);
+                        
+                        if (difficulties.length > 0) {
+                            const min = difficulties[0];
+                            const max = difficulties[difficulties.length - 1];
+                            document.getElementById('difficultyLevels').textContent = min === max ? min : `${min}-${max}`;
+                        } else {
+                            document.getElementById('difficultyLevels').textContent = '-';
+                        }
+                    } else {
+                        document.getElementById('difficultyLevels').textContent = '-';
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load statistics:', error);
@@ -452,6 +644,126 @@
 
         // Load statistics on page load
         document.addEventListener('DOMContentLoaded', loadStatistics);
+
+        // Table pagination variables
+        let allQuestions = [];
+        let filteredQuestions = [];
+        let currentPage = 1;
+        const rowsPerPage = 20;
+
+        // Toggle questions table
+        function toggleQuestionsTable() {
+            const container = document.getElementById('tableContainer');
+            const icon = document.getElementById('toggleIcon');
+            const btn = document.getElementById('toggleTableBtn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                icon.classList.add('expanded');
+                btn.innerHTML = '<span id="toggleIcon" class="expanded">▼</span> Hide Questions';
+                
+                // Load questions if not already loaded
+                if (allQuestions.length === 0) {
+                    loadQuestions();
+                }
+            } else {
+                container.style.display = 'none';
+                icon.classList.remove('expanded');
+                btn.innerHTML = '<span id="toggleIcon">▼</span> Show Questions';
+            }
+        }
+
+        // Load all questions from API
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/quiz/questions');
+                if (response.ok) {
+                    allQuestions = await response.json();
+                    filteredQuestions = [...allQuestions];
+                    currentPage = 1;
+                    displayTable();
+                } else {
+                    document.getElementById('tableBody').innerHTML = 
+                        '<tr><td colspan="6" style="text-align: center; color: red;">Failed to load questions</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('tableBody').innerHTML = 
+                    '<tr><td colspan="6" style="text-align: center; color: red;">Error loading questions</td></tr>';
+            }
+        }
+
+        // Display table based on current page
+        function displayTable() {
+            const tableBody = document.getElementById('tableBody');
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, filteredQuestions.length);
+            const pageQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+            if (pageQuestions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No questions found</td></tr>';
+            } else {
+                tableBody.innerHTML = pageQuestions.map(q => `
+                    <tr>
+                        <td>${q.id}</td>
+                        <td style="max-width: 400px;">${truncateText(q.question, 100)}</td>
+                        <td>${q.area || '-'}</td>
+                        <td>${q.skill || '-'}</td>
+                        <td>${'★'.repeat(q.difficulty || 0)}${'☆'.repeat(5 - (q.difficulty || 0))}</td>
+                        <td><strong>${q.correctAnswer || '-'}</strong></td>
+                    </tr>
+                `).join('');
+            }
+
+            updatePaginationControls();
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredQuestions.length / rowsPerPage);
+            const startIndex = (currentPage - 1) * rowsPerPage + 1;
+            const endIndex = Math.min(currentPage * rowsPerPage, filteredQuestions.length);
+
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${filteredQuestions.length > 0 ? startIndex : 0}-${endIndex} of ${filteredQuestions.length}`;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages || totalPages === 0;
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredQuestions.length / rowsPerPage);
+            currentPage += direction;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            displayTable();
+        }
+
+        // Filter table based on search
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredQuestions = [...allQuestions];
+            } else {
+                filteredQuestions = allQuestions.filter(q => 
+                    q.question.toLowerCase().includes(searchTerm) ||
+                    (q.area && q.area.toLowerCase().includes(searchTerm)) ||
+                    (q.skill && q.skill.toLowerCase().includes(searchTerm)) ||
+                    (q.correctAnswer && q.correctAnswer.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            currentPage = 1;
+            displayTable();
+        }
+
+        // Truncate text helper
+        function truncateText(text, maxLength) {
+            if (!text) return '-';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
     </script>
 </body>
 </html>

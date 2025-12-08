@@ -357,6 +357,188 @@
             color: #666;
             font-weight: 600;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #ddd;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .question-preview {
+            margin-bottom: 25px;
+        }
+
+        .question-preview h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-preview {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-preview {
+            background: #f8fafe;
+            border: 2px solid #e6f3ff;
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .option-preview.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option-preview .option-letter {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .option-preview.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option-preview .option-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .explanation-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .explanation-box h4 {
+            color: #856404;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .explanation-box p {
+            color: #856404;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .metadata-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e6f3ff;
+        }
+
+        .metadata-item {
+            text-align: center;
+        }
+
+        .metadata-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .metadata-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .view-btn:hover {
+            background: #5568d3;
+        }
     </style>
 </head>
 <body>
@@ -446,7 +628,7 @@
                                     <th>Area</th>
                                     <th>Skill</th>
                                     <th>Difficulty</th>
-                                    <th>Answer</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
@@ -466,6 +648,19 @@
             </div>
 
             <a href="index.html" class="back-link">← Back to Quiz</a>
+        </div>
+    </div>
+
+    <!-- Question Preview Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Question Preview</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
         </div>
     </div>
 
@@ -710,7 +905,7 @@
                         <td>${q.area || '-'}</td>
                         <td>${q.skill || '-'}</td>
                         <td>${'★'.repeat(q.difficulty || 0)}${'☆'.repeat(5 - (q.difficulty || 0))}</td>
-                        <td><strong>${q.correctAnswer || '-'}</strong></td>
+                        <td><button class="view-btn" onclick="viewQuestion(${q.id})">View</button></td>
                     </tr>
                 `).join('');
             }
@@ -751,7 +946,8 @@
                     q.question.toLowerCase().includes(searchTerm) ||
                     (q.area && q.area.toLowerCase().includes(searchTerm)) ||
                     (q.skill && q.skill.toLowerCase().includes(searchTerm)) ||
-                    (q.correctAnswer && q.correctAnswer.toLowerCase().includes(searchTerm))
+                    (q.correctAnswer && q.correctAnswer.toLowerCase().includes(searchTerm)) ||
+                    (q.explanation && q.explanation.toLowerCase().includes(searchTerm))
                 );
             }
             
@@ -764,6 +960,83 @@
             if (!text) return '-';
             return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
         }
+
+        // Modal functions
+        function viewQuestion(questionId) {
+            const question = allQuestions.find(q => q.id === questionId);
+            if (!question) return;
+
+            const modalBody = document.getElementById('modalBody');
+            
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            const options = [
+                { letter: 'A', text: question.optionA },
+                { letter: 'B', text: question.optionB },
+                { letter: 'C', text: question.optionC },
+                { letter: 'D', text: question.optionD }
+            ];
+
+            modalBody.innerHTML = `
+                <div class="question-preview">
+                    <h3>${question.question}</h3>
+                    <div class="options-preview">
+                        ${options.map(opt => `
+                            <div class="option-preview ${opt.letter === question.correctAnswer ? 'correct' : ''}">
+                                <div class="option-letter">${opt.letter}</div>
+                                <div class="option-text">${opt.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${question.explanation ? `
+                        <div class="explanation-box">
+                            <h4>💡 Explanation</h4>
+                            <p>${question.explanation}</p>
+                        </div>
+                    ` : ''}
+                    <div class="metadata-preview">
+                        <div class="metadata-item">
+                            <div class="metadata-label">Area</div>
+                            <div class="metadata-value">${question.area || '-'}</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Skill</div>
+                            <div class="metadata-value">${question.skill || '-'}</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Difficulty</div>
+                            <div class="metadata-value">${'★'.repeat(question.difficulty || 0)}${'☆'.repeat(5 - (question.difficulty || 0))}</div>
+                        </div>
+                        ${question.degree ? `
+                            <div class="metadata-item">
+                                <div class="metadata-label">Degree</div>
+                                <div class="metadata-value">${question.degree}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('questionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('questionModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>

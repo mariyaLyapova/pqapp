@@ -35,6 +35,8 @@ public class QuizController {
             questionData.put("optionB", q.getOptionB());
             questionData.put("optionC", q.getOptionC());
             questionData.put("optionD", q.getOptionD());
+            questionData.put("correctAnswer", q.getCorrectAnswer());
+            questionData.put("explanation", q.getExplanation());
             questionData.put("area", q.getArea());
             questionData.put("skill", q.getSkill());
             questionData.put("difficulty", q.getDifficulty());

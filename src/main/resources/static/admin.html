@@ -190,9 +190,9 @@
         }
 
         .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
             margin-top: 20px;
         }
 
@@ -202,6 +202,8 @@
             padding: 20px;
             text-align: center;
             border: 1px solid #e6f3ff;
+            flex: 1;
+            min-width: 0;
         }
 
         .stat-number {
@@ -225,6 +227,454 @@
 
         .back-link:hover {
             text-decoration: underline;
+        }
+
+        .toggle-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            text-align: left;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #475569;
+        }
+
+        #toggleIcon {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        #toggleIcon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .table-container {
+            margin-top: 20px;
+            background: #f8fafe;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #64748b;
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            position: relative;
+            display: inline-block;
+        }
+
+        .filter-button {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .filter-button:hover {
+            border-color: #64748b;
+            background: #f8fafe;
+        }
+
+        .filter-button.active {
+            border-color: #667eea;
+            background: #e6f3ff;
+        }
+
+        .filter-badge {
+            background: #667eea;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .filter-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .filter-dropdown.show {
+            display: block;
+        }
+
+        .filter-search {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            border-bottom: 2px solid #e6f3ff;
+        }
+
+        .filter-search input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .filter-search input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-options-list {
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .filter-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .filter-option:hover {
+            background: #f8fafe;
+        }
+
+        .filter-option input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .filter-option.difficulty-option label {
+            font-size: 12px;
+        }
+
+        .clear-filters-btn {
+            background: #94a3b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .clear-filters-btn:hover {
+            background: #64748b;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .questions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .questions-table th {
+            background: #64748b;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .questions-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e6f3ff;
+        }
+
+        .questions-table tbody tr:hover {
+            background: #f0f8ff;
+        }
+
+        .questions-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .page-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #475569;
+        }
+
+        .page-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        #pageInfo {
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #ddd;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .question-preview {
+            margin-bottom: 25px;
+        }
+
+        .question-preview h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-preview {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-preview {
+            background: #f8fafe;
+            border: 2px solid #e6f3ff;
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .option-preview.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option-preview .option-letter {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .option-preview.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option-preview .option-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .explanation-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .explanation-box h4 {
+            color: #856404;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .explanation-box p {
+            color: #856404;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .metadata-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e6f3ff;
+        }
+
+        .metadata-item {
+            text-align: center;
+        }
+
+        .metadata-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .metadata-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .view-btn:hover {
+            background: #5568d3;
         }
     </style>
 </head>
@@ -284,13 +734,122 @@
                         <div class="stat-label">Areas</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number" id="degreesCount">-</div>
-                        <div class="stat-label">Degrees</div>
+                        <div class="stat-number" id="difficultyLevels">-</div>
+                        <div class="stat-label">Difficulty Levels</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Database Questions</h2>
+                <button class="toggle-btn" id="toggleTableBtn" onclick="toggleQuestionsTable()">
+                    <span id="toggleIcon">▼</span> Show Questions
+                </button>
+                
+                <div class="table-container" id="tableContainer" style="display: none;">
+                    <div class="filters-container">
+                        <div class="filter-group">
+                            <button class="filter-button" onclick="toggleFilterDropdown('area')">
+                                <span>Area</span>
+                                <span class="filter-badge" id="areaBadge" style="display: none;">0</span>
+                                <span>▼</span>
+                            </button>
+                            <div class="filter-dropdown" id="areaDropdown">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <button class="filter-button" onclick="toggleFilterDropdown('skill')">
+                                <span>Skill</span>
+                                <span class="filter-badge" id="skillBadge" style="display: none;">0</span>
+                                <span>▼</span>
+                            </button>
+                            <div class="filter-dropdown" id="skillDropdown">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <button class="filter-button" onclick="toggleFilterDropdown('difficulty')">
+                                <span>Difficulty</span>
+                                <span class="filter-badge" id="difficultyBadge" style="display: none;">0</span>
+                                <span>▼</span>
+                            </button>
+                            <div class="filter-dropdown" id="difficultyDropdown">
+                                <div class="filter-option difficulty-option">
+                                    <input type="checkbox" id="diff1" value="1" onchange="filterTable()">
+                                    <label for="diff1">★☆☆☆☆</label>
+                                </div>
+                                <div class="filter-option difficulty-option">
+                                    <input type="checkbox" id="diff2" value="2" onchange="filterTable()">
+                                    <label for="diff2">★★☆☆☆</label>
+                                </div>
+                                <div class="filter-option difficulty-option">
+                                    <input type="checkbox" id="diff3" value="3" onchange="filterTable()">
+                                    <label for="diff3">★★★☆☆</label>
+                                </div>
+                                <div class="filter-option difficulty-option">
+                                    <input type="checkbox" id="diff4" value="4" onchange="filterTable()">
+                                    <label for="diff4">★★★★☆</label>
+                                </div>
+                                <div class="filter-option difficulty-option">
+                                    <input type="checkbox" id="diff5" value="5" onchange="filterTable()">
+                                    <label for="diff5">★★★★★</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="filterTable()">
+                        </div>
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Showing 0-0 of 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="questions-table" id="questionsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Question</th>
+                                    <th>Area</th>
+                                    <th>Skill</th>
+                                    <th>Difficulty</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <button class="page-btn" id="prevBtn" onclick="changePage(-1)" disabled>← Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button class="page-btn" id="nextBtn" onclick="changePage(1)" disabled>Next →</button>
                     </div>
                 </div>
             </div>
 
             <a href="index.html" class="back-link">← Back to Quiz</a>
+        </div>
+    </div>
+
+    <!-- Question Preview Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Question Preview</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
         </div>
     </div>
 
@@ -443,7 +1002,24 @@
                     document.getElementById('totalQuestions').textContent = stats.totalQuestions || 0;
                     document.getElementById('skillsCount').textContent = (stats.skills?.length) || 0;
                     document.getElementById('areasCount').textContent = (stats.areas?.length) || 0;
-                    document.getElementById('degreesCount').textContent = (stats.degrees?.length) || 0;
+                    
+                    // Calculate difficulty levels range
+                    if (stats.difficultyDistribution) {
+                        const difficulties = Object.keys(stats.difficultyDistribution)
+                            .filter(key => stats.difficultyDistribution[key] > 0)
+                            .map(Number)
+                            .sort((a, b) => a - b);
+                        
+                        if (difficulties.length > 0) {
+                            const min = difficulties[0];
+                            const max = difficulties[difficulties.length - 1];
+                            document.getElementById('difficultyLevels').textContent = min === max ? min : `${min}-${max}`;
+                        } else {
+                            document.getElementById('difficultyLevels').textContent = '-';
+                        }
+                    } else {
+                        document.getElementById('difficultyLevels').textContent = '-';
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load statistics:', error);
@@ -452,6 +1028,332 @@
 
         // Load statistics on page load
         document.addEventListener('DOMContentLoaded', loadStatistics);
+
+        // Table pagination variables
+        let allQuestions = [];
+        let filteredQuestions = [];
+        let currentPage = 1;
+        const rowsPerPage = 20;
+
+        // Toggle questions table
+        function toggleQuestionsTable() {
+            const container = document.getElementById('tableContainer');
+            const icon = document.getElementById('toggleIcon');
+            const btn = document.getElementById('toggleTableBtn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                icon.classList.add('expanded');
+                btn.innerHTML = '<span id="toggleIcon" class="expanded">▼</span> Hide Questions';
+                
+                // Load questions if not already loaded
+                if (allQuestions.length === 0) {
+                    loadQuestions();
+                }
+            } else {
+                container.style.display = 'none';
+                icon.classList.remove('expanded');
+                btn.innerHTML = '<span id="toggleIcon">▼</span> Show Questions';
+            }
+        }
+
+        // Load all questions from API
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/quiz/questions');
+                if (response.ok) {
+                    allQuestions = await response.json();
+                    filteredQuestions = [...allQuestions];
+                    currentPage = 1;
+                    populateFilterDropdowns();
+                    displayTable();
+                } else {
+                    document.getElementById('tableBody').innerHTML = 
+                        '<tr><td colspan="6" style="text-align: center; color: red;">Failed to load questions</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('tableBody').innerHTML = 
+                    '<tr><td colspan="6" style="text-align: center; color: red;">Error loading questions</td></tr>';
+            }
+        }
+
+        // Populate filter dropdowns with unique values
+        function populateFilterDropdowns() {
+            // Get unique areas
+            const areas = [...new Set(allQuestions.map(q => q.area).filter(a => a))].sort();
+            const areaDropdown = document.getElementById('areaDropdown');
+            areaDropdown.innerHTML = `
+                <div class="filter-search">
+                    <input type="text" placeholder="Search areas..." onkeyup="searchFilter('area')" onclick="event.stopPropagation()">
+                </div>
+                <div class="filter-options-list" id="areaOptionsList">
+                    ${areas.map(area => `
+                        <div class="filter-option" data-value="${area.toLowerCase()}">
+                            <input type="checkbox" id="area_${area.replace(/\s+/g, '_')}" value="${area}" onchange="filterTable()">
+                            <label for="area_${area.replace(/\s+/g, '_')}">${area}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Get unique skills
+            const skills = [...new Set(allQuestions.map(q => q.skill).filter(s => s))].sort();
+            const skillDropdown = document.getElementById('skillDropdown');
+            skillDropdown.innerHTML = `
+                <div class="filter-search">
+                    <input type="text" placeholder="Search skills..." onkeyup="searchFilter('skill')" onclick="event.stopPropagation()">
+                </div>
+                <div class="filter-options-list" id="skillOptionsList">
+                    ${skills.map(skill => `
+                        <div class="filter-option" data-value="${skill.toLowerCase()}">
+                            <input type="checkbox" id="skill_${skill.replace(/\s+/g, '_')}" value="${skill}" onchange="filterTable()">
+                            <label for="skill_${skill.replace(/\s+/g, '_')}">${skill}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Display table based on current page
+        function displayTable() {
+            const tableBody = document.getElementById('tableBody');
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, filteredQuestions.length);
+            const pageQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+            if (pageQuestions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No questions found</td></tr>';
+            } else {
+                tableBody.innerHTML = pageQuestions.map(q => `
+                    <tr>
+                        <td>${q.id}</td>
+                        <td style="max-width: 400px;">${truncateText(q.question, 100)}</td>
+                        <td>${q.area || '-'}</td>
+                        <td>${q.skill || '-'}</td>
+                        <td>${'★'.repeat(q.difficulty || 0)}${'☆'.repeat(5 - (q.difficulty || 0))}</td>
+                        <td><button class="view-btn" onclick="viewQuestion(${q.id})">View</button></td>
+                    </tr>
+                `).join('');
+            }
+
+            updatePaginationControls();
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredQuestions.length / rowsPerPage);
+            const startIndex = (currentPage - 1) * rowsPerPage + 1;
+            const endIndex = Math.min(currentPage * rowsPerPage, filteredQuestions.length);
+
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${filteredQuestions.length > 0 ? startIndex : 0}-${endIndex} of ${filteredQuestions.length}`;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages || totalPages === 0;
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredQuestions.length / rowsPerPage);
+            currentPage += direction;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            displayTable();
+        }
+
+        // Filter table based on search and dropdown filters
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Get selected areas
+            const selectedAreas = Array.from(document.querySelectorAll('#areaDropdown input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            // Get selected skills
+            const selectedSkills = Array.from(document.querySelectorAll('#skillDropdown input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            // Get selected difficulties
+            const selectedDifficulties = Array.from(document.querySelectorAll('#difficultyDropdown input[type="checkbox"]:checked'))
+                .map(cb => parseInt(cb.value));
+            
+            // Update badges
+            updateFilterBadge('area', selectedAreas.length);
+            updateFilterBadge('skill', selectedSkills.length);
+            updateFilterBadge('difficulty', selectedDifficulties.length);
+            
+            filteredQuestions = allQuestions.filter(q => {
+                // Search filter
+                const matchesSearch = searchTerm === '' || 
+                    q.question.toLowerCase().includes(searchTerm) ||
+                    (q.area && q.area.toLowerCase().includes(searchTerm)) ||
+                    (q.skill && q.skill.toLowerCase().includes(searchTerm)) ||
+                    (q.correctAnswer && q.correctAnswer.toLowerCase().includes(searchTerm)) ||
+                    (q.explanation && q.explanation.toLowerCase().includes(searchTerm));
+                
+                // Checkbox filters (if nothing selected, show all)
+                const matchesArea = selectedAreas.length === 0 || selectedAreas.includes(q.area);
+                const matchesSkill = selectedSkills.length === 0 || selectedSkills.includes(q.skill);
+                const matchesDifficulty = selectedDifficulties.length === 0 || selectedDifficulties.includes(q.difficulty);
+                
+                return matchesSearch && matchesArea && matchesSkill && matchesDifficulty;
+            });
+            
+            currentPage = 1;
+            displayTable();
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            
+            // Uncheck all area checkboxes
+            document.querySelectorAll('#areaDropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            // Uncheck all skill checkboxes
+            document.querySelectorAll('#skillDropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            // Uncheck all difficulty checkboxes
+            document.querySelectorAll('#difficultyDropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            filterTable();
+        }
+
+        // Toggle filter dropdown
+        function toggleFilterDropdown(filterName) {
+            const dropdown = document.getElementById(filterName + 'Dropdown');
+            const isShown = dropdown.classList.contains('show');
+            
+            // Close all dropdowns
+            document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+            
+            // Toggle current dropdown
+            if (!isShown) {
+                dropdown.classList.add('show');
+                event.target.closest('.filter-button').classList.add('active');
+            }
+        }
+
+        // Update filter badge
+        function updateFilterBadge(filterName, count) {
+            const badge = document.getElementById(filterName + 'Badge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.filter-group')) {
+                document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+                document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+            }
+        });
+
+        // Search within filter options
+        function searchFilter(filterType) {
+            const input = event.target;
+            const searchTerm = input.value.toLowerCase();
+            const optionsList = document.getElementById(filterType + 'OptionsList');
+            const options = optionsList.querySelectorAll('.filter-option');
+            
+            options.forEach(option => {
+                const value = option.getAttribute('data-value');
+                if (value.includes(searchTerm)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        // Truncate text helper
+        function truncateText(text, maxLength) {
+            if (!text) return '-';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+
+        // Modal functions
+        function viewQuestion(questionId) {
+            const question = allQuestions.find(q => q.id === questionId);
+            if (!question) return;
+
+            const modalBody = document.getElementById('modalBody');
+            
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            const options = [
+                { letter: 'A', text: question.optionA },
+                { letter: 'B', text: question.optionB },
+                { letter: 'C', text: question.optionC },
+                { letter: 'D', text: question.optionD }
+            ];
+
+            modalBody.innerHTML = `
+                <div class="question-preview">
+                    <h3>${question.question}</h3>
+                    <div class="options-preview">
+                        ${options.map(opt => `
+                            <div class="option-preview ${opt.letter === question.correctAnswer ? 'correct' : ''}">
+                                <div class="option-letter">${opt.letter}</div>
+                                <div class="option-text">${opt.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${question.explanation ? `
+                        <div class="explanation-box">
+                            <h4>💡 Explanation</h4>
+                            <p>${question.explanation}</p>
+                        </div>
+                    ` : ''}
+                    <div class="metadata-preview">
+                        <div class="metadata-item">
+                            <div class="metadata-label">Area</div>
+                            <div class="metadata-value">${question.area || '-'}</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Skill</div>
+                            <div class="metadata-value">${question.skill || '-'}</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Difficulty</div>
+                            <div class="metadata-value">${'★'.repeat(question.difficulty || 0)}${'☆'.repeat(5 - (question.difficulty || 0))}</div>
+                        </div>
+                        ${question.degree ? `
+                            <div class="metadata-item">
+                                <div class="metadata-label">Degree</div>
+                                <div class="metadata-value">${question.degree}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('questionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('questionModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>

@@ -209,6 +209,12 @@ The admin panel provides a user-friendly web interface for managing quiz questio
 ### Features
 - 📤 **File Upload**: Upload JSON files directly through the web interface
 - 📊 **Database Statistics**: View question counts, difficulty distribution, and categories
+- 📋 **Questions Table**: Browse all questions with pagination (20 per page)
+- 🔍 **Advanced Filtering**: Filter by Area, Skill, and Difficulty with multi-select dropdowns
+- 🔎 **Search Filters**: Search within Area and Skill filter lists for quick access
+- 🔍 **Table Search**: Search across questions, answers, and explanations
+- 👁️ **Question Preview**: View complete question details in a modal popup with quiz-like visualization
+- 📊 **Filter Badges**: Visual indicators showing number of active filters
 - 🗑️ **Data Management**: Clear existing questions or append new ones
 - ✅ **Import Validation**: Real-time feedback on file uploads and import status
 - 📝 **Progress Tracking**: Visual progress indicators for import operations
@@ -217,10 +223,27 @@ The admin panel provides a user-friendly web interface for managing quiz questio
 Navigate to `http://localhost:8081/admin.html` after starting the application.
 
 ### Usage
+
+#### Importing Questions
 1. **Upload JSON File**: Click "Choose File" and select your question JSON file
 2. **Configure Import**: Choose whether to clear existing questions or append
 3. **Import**: Click "Import Questions" to process the file
 4. **Monitor Progress**: Watch real-time feedback and statistics updates
+
+#### Managing Questions
+1. **View All Questions**: Click "Show Questions" to expand the questions table
+2. **Filter Questions**: Use the Area, Skill, and Difficulty filters to narrow down questions
+   - Click filter buttons to open dropdown panels with checkboxes
+   - Select multiple options for combined filtering
+   - Use search boxes in Area/Skill filters to find specific values
+   - Badge numbers show how many filters are active
+3. **Search Questions**: Use the search box to find questions by text, area, skill, or explanation
+4. **Preview Question**: Click the "View" button on any question to see full details including:
+   - Complete question text and all options
+   - Correct answer highlighted in green
+   - Explanation (if available)
+   - Metadata (area, skill, difficulty, degree)
+5. **Clear Filters**: Click "Clear Filters" to reset all active filters
 
 The admin panel supports the same JSON format as the command-line import tool.
 

@@ -2,7 +2,9 @@ package com.promptquest.controller;
 
 import com.promptquest.entity.Question;
 import com.promptquest.repository.QuestionRepository;
+import com.promptquest.service.BigQueryQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -11,8 +13,11 @@ import java.util.*;
 @CrossOrigin(origins = "*") // Allow frontend access
 public class QuizController {
 
-    @Autowired
+    @Autowired(required = false)
     private QuestionRepository questionRepository;
+
+    @Autowired(required = false)
+    private BigQueryQuestionService bigQueryQuestionService;
 
     // Web interface routes
     @GetMapping("/")
@@ -24,7 +29,7 @@ public class QuizController {
     @GetMapping("/api/quiz/questions")
     @ResponseBody
     public List<Map<String, Object>> getAllQuestions() {
-        List<Question> questions = questionRepository.findAll();
+        List<Question> questions = getQuestions();
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (Question q : questions) {
@@ -60,9 +65,8 @@ public class QuizController {
             Long questionId = Long.parseLong(questionIdStr);
             String userAnswer = answers.get(questionIdStr);
 
-            Optional<Question> questionOpt = questionRepository.findById(questionId);
-            if (questionOpt.isPresent()) {
-                Question question = questionOpt.get();
+            Question question = findQuestionById(questionId);
+            if (question != null) {
                 boolean isCorrect = question.getCorrectAnswer().equals(userAnswer);
                 if (isCorrect) correct++;
 
@@ -98,7 +102,7 @@ public class QuizController {
     @GetMapping("/api/quiz/random/{count}")
     @ResponseBody
     public List<Map<String, Object>> getRandomQuestions(@PathVariable int count) {
-        List<Question> allQuestions = questionRepository.findAll();
+        List<Question> allQuestions = getQuestions();
         Collections.shuffle(allQuestions);
 
         int limit = Math.min(count, allQuestions.size());
@@ -120,5 +124,29 @@ public class QuizController {
             result.add(questionData);
         }
         return result;
+    }
+
+    // Helper methods to work with both SQLite and BigQuery
+    private List<Question> getQuestions() {
+        if (bigQueryQuestionService != null) {
+            return bigQueryQuestionService.getAllQuestions();
+        } else if (questionRepository != null) {
+            return questionRepository.findAll();
+        }
+        return new ArrayList<>();
+    }
+
+    private Question findQuestionById(Long id) {
+        if (bigQueryQuestionService != null) {
+            List<Question> questions = bigQueryQuestionService.getAllQuestions();
+            return questions.stream()
+                    .filter(q -> q.getId().equals(id))
+                    .findFirst()
+                    .orElse(null);
+        } else if (questionRepository != null) {
+            Optional<Question> question = questionRepository.findById(id);
+            return question.orElse(null);
+        }
+        return null;
     }
 }

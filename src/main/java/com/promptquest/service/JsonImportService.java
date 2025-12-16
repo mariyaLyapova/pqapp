@@ -25,8 +25,11 @@ public class JsonImportService {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonImportService.class);
 
-    @Autowired
+    @Autowired(required = false)
     private QuestionRepository questionRepository;
+
+    @Autowired(required = false)
+    private BigQueryQuestionService bigQueryQuestionService;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -59,7 +62,16 @@ public class JsonImportService {
 
             for (JsonNode questionNode : questionsNode) {
                 Question question = convertJsonToQuestion(questionNode);
-                questionRepository.save(question);
+                
+                // Use the appropriate service based on what's available
+                if (bigQueryQuestionService != null) {
+                    bigQueryQuestionService.saveQuestion(question);
+                } else if (questionRepository != null) {
+                    questionRepository.save(question);
+                } else {
+                    throw new RuntimeException("No data storage service available");
+                }
+                
                 importedCount++;
                 logger.debug("Imported question {}: {}", importedCount, question.getQuestion().substring(0, Math.min(50, question.getQuestion().length())));
             }
@@ -125,7 +137,13 @@ public class JsonImportService {
     @Transactional
     public void clearAllQuestions() {
         logger.info("Clearing all existing questions");
-        questionRepository.deleteAll();
+        if (bigQueryQuestionService != null) {
+            bigQueryQuestionService.deleteAllQuestions();
+        } else if (questionRepository != null) {
+            questionRepository.deleteAll();
+        } else {
+            throw new RuntimeException("No data storage service available");
+        }
         logger.info("All questions cleared");
     }
 
@@ -145,17 +163,31 @@ public class JsonImportService {
      */
     public Map<String, Object> getImportStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalQuestions", questionRepository.count());
-        stats.put("skills", questionRepository.findAllSkills());
-        stats.put("areas", questionRepository.findAllAreas());
-        stats.put("degrees", questionRepository.findAllDegrees());
+        
+        if (bigQueryQuestionService != null) {
+            // BigQuery stats
+            stats.put("totalQuestions", bigQueryQuestionService.countQuestions());
+            // Note: These aggregations would need to be implemented in BigQueryQuestionService
+            stats.put("skills", "N/A");
+            stats.put("areas", "N/A");
+            stats.put("degrees", "N/A");
+            stats.put("difficultyDistribution", "N/A");
+        } else if (questionRepository != null) {
+            // SQLite stats
+            stats.put("totalQuestions", questionRepository.count());
+            stats.put("skills", questionRepository.findAllSkills());
+            stats.put("areas", questionRepository.findAllAreas());
+            stats.put("degrees", questionRepository.findAllDegrees());
 
-        // Count by difficulty
-        Map<Integer, Long> difficultyCount = new HashMap<>();
-        for (int i = 1; i <= 5; i++) {
-            difficultyCount.put(i, questionRepository.countByDifficulty(i));
+            // Count by difficulty
+            Map<Integer, Long> difficultyCount = new HashMap<>();
+            for (int i = 1; i <= 5; i++) {
+                difficultyCount.put(i, questionRepository.countByDifficulty(i));
+            }
+            stats.put("difficultyDistribution", difficultyCount);
+        } else {
+            throw new RuntimeException("No data storage service available");
         }
-        stats.put("difficultyDistribution", difficultyCount);
 
         return stats;
     }

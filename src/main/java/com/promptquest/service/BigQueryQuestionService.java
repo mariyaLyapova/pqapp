@@ -51,7 +51,7 @@ public class BigQueryQuestionService {
             if (table == null) {
                 // Define schema
                 Schema schema = Schema.of(
-                    Field.of("id", StandardSQLTypeName.STRING),
+                    Field.of("id", StandardSQLTypeName.INT64),
                     Field.of("question", StandardSQLTypeName.STRING),
                     Field.of("option_a", StandardSQLTypeName.STRING),
                     Field.of("option_b", StandardSQLTypeName.STRING),
@@ -82,8 +82,14 @@ public class BigQueryQuestionService {
         try {
             TableId tableId = TableId.of(datasetName, tableName);
             
+            // Generate numeric ID if not present
+            Long id = question.getId();
+            if (id == null) {
+                id = generateNextId();
+            }
+            
             Map<String, Object> rowContent = new HashMap<>();
-            rowContent.put("id", question.getId() != null ? question.getId().toString() : UUID.randomUUID().toString());
+            rowContent.put("id", id);
             rowContent.put("question", question.getQuestion());
             rowContent.put("option_a", question.getOptionA());
             rowContent.put("option_b", question.getOptionB());
@@ -197,6 +203,111 @@ public class BigQueryQuestionService {
     }
 
     /**
+     * Get difficulty distribution (count by difficulty level)
+     */
+    public Map<Integer, Long> getDifficultyDistribution() {
+        String query = String.format(
+            "SELECT difficulty, COUNT(*) as count FROM `%s.%s.%s` GROUP BY difficulty ORDER BY difficulty", 
+            bigQuery.getOptions().getProjectId(), datasetName, tableName);
+        
+        Map<Integer, Long> distribution = new HashMap<>();
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            TableResult result = bigQuery.query(queryConfig);
+            
+            for (FieldValueList row : result.iterateAll()) {
+                Integer difficulty = getIntegerValue(row, "difficulty");
+                Long count = row.get("count").getLongValue();
+                if (difficulty != null) {
+                    distribution.put(difficulty, count);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting difficulty distribution", e);
+        }
+        
+        return distribution;
+    }
+
+    /**
+     * Get distinct skills
+     */
+    public List<String> getDistinctSkills() {
+        String query = String.format(
+            "SELECT DISTINCT skill FROM `%s.%s.%s` WHERE skill IS NOT NULL ORDER BY skill", 
+            bigQuery.getOptions().getProjectId(), datasetName, tableName);
+        
+        List<String> skills = new ArrayList<>();
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            TableResult result = bigQuery.query(queryConfig);
+            
+            for (FieldValueList row : result.iterateAll()) {
+                String skill = getStringValue(row, "skill");
+                if (skill != null && !skill.isEmpty()) {
+                    skills.add(skill);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting distinct skills", e);
+        }
+        
+        return skills;
+    }
+
+    /**
+     * Get distinct areas
+     */
+    public List<String> getDistinctAreas() {
+        String query = String.format(
+            "SELECT DISTINCT area FROM `%s.%s.%s` WHERE area IS NOT NULL ORDER BY area", 
+            bigQuery.getOptions().getProjectId(), datasetName, tableName);
+        
+        List<String> areas = new ArrayList<>();
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            TableResult result = bigQuery.query(queryConfig);
+            
+            for (FieldValueList row : result.iterateAll()) {
+                String area = getStringValue(row, "area");
+                if (area != null && !area.isEmpty()) {
+                    areas.add(area);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting distinct areas", e);
+        }
+        
+        return areas;
+    }
+
+    /**
+     * Get distinct degrees
+     */
+    public List<String> getDistinctDegrees() {
+        String query = String.format(
+            "SELECT DISTINCT degree FROM `%s.%s.%s` WHERE degree IS NOT NULL ORDER BY degree", 
+            bigQuery.getOptions().getProjectId(), datasetName, tableName);
+        
+        List<String> degrees = new ArrayList<>();
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            TableResult result = bigQuery.query(queryConfig);
+            
+            for (FieldValueList row : result.iterateAll()) {
+                String degree = getStringValue(row, "degree");
+                if (degree != null && !degree.isEmpty()) {
+                    degrees.add(degree);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting distinct degrees", e);
+        }
+        
+        return degrees;
+    }
+
+    /**
      * Execute a query and convert results to Question objects
      */
     private List<Question> executeQuery(String query) {
@@ -215,7 +326,7 @@ public class BigQueryQuestionService {
             
             for (FieldValueList row : result.iterateAll()) {
                 Question question = new Question();
-                question.setId(parseLong(row.get("id").getStringValue()));
+                question.setId(getLongValue(row, "id"));
                 question.setQuestion(row.get("question").getStringValue());
                 question.setOptionA(row.get("option_a").getStringValue());
                 question.setOptionB(row.get("option_b").getStringValue());
@@ -247,11 +358,30 @@ public class BigQueryQuestionService {
         return (value != null && !value.isNull()) ? (int) value.getLongValue() : null;
     }
 
-    private Long parseLong(String value) {
+    private Long getLongValue(FieldValueList row, String fieldName) {
+        FieldValue value = row.get(fieldName);
+        return (value != null && !value.isNull()) ? value.getLongValue() : null;
+    }
+
+    /**
+     * Generate next available ID by querying max ID and incrementing
+     */
+    private Long generateNextId() {
+        String query = String.format("SELECT COALESCE(MAX(id), 0) as max_id FROM `%s.%s.%s`", 
+                bigQuery.getOptions().getProjectId(), datasetName, tableName);
+        
         try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            return null;
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            TableResult result = bigQuery.query(queryConfig);
+            
+            for (FieldValueList row : result.iterateAll()) {
+                return row.get("max_id").getLongValue() + 1;
+            }
+        } catch (Exception e) {
+            // If query fails, use timestamp-based ID as fallback
+            return System.currentTimeMillis() % 1000000000L;
         }
+        
+        return 1L;
     }
 }

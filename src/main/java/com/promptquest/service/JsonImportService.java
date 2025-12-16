@@ -167,11 +167,10 @@ public class JsonImportService {
         if (bigQueryQuestionService != null) {
             // BigQuery stats
             stats.put("totalQuestions", bigQueryQuestionService.countQuestions());
-            // Note: These aggregations would need to be implemented in BigQueryQuestionService
-            stats.put("skills", "N/A");
-            stats.put("areas", "N/A");
-            stats.put("degrees", "N/A");
-            stats.put("difficultyDistribution", "N/A");
+            stats.put("skills", bigQueryQuestionService.getDistinctSkills());
+            stats.put("areas", bigQueryQuestionService.getDistinctAreas());
+            stats.put("degrees", bigQueryQuestionService.getDistinctDegrees());
+            stats.put("difficultyDistribution", bigQueryQuestionService.getDifficultyDistribution());
         } else if (questionRepository != null) {
             // SQLite stats
             stats.put("totalQuestions", questionRepository.count());

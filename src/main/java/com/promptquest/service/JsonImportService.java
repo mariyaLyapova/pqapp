@@ -99,10 +99,18 @@ public class JsonImportService {
         question.setQuestion(questionNode.get("question").asText());
         question.setCorrectAnswer(questionNode.get("answer").asText());
         question.setExplanation(questionNode.get("explanation").asText());
-        question.setDifficulty(questionNode.get("difficulty").asInt());
+        
+        // Handle difficulty as either string or int
+        JsonNode difficultyNode = questionNode.get("difficulty");
+        int difficulty = difficultyNode.isInt() ? difficultyNode.asInt() : Integer.parseInt(difficultyNode.asText());
+        question.setDifficulty(difficulty);
+        
         question.setArea(questionNode.get("area").asText());
         question.setSkill(questionNode.get("skill").asText());
-        question.setDegree(questionNode.get("degree").asText());
+        
+        // Normalize degree to lowercase (entity validation requires lowercase)
+        String degree = questionNode.get("degree").asText().toLowerCase();
+        question.setDegree(degree);
 
         // Parse options
         Map<String, String> options = new HashMap<>();

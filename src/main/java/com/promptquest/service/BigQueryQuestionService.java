@@ -120,7 +120,7 @@ public class BigQueryQuestionService {
      * Get all questions from BigQuery
      */
     public List<Question> getAllQuestions() {
-        String query = String.format("SELECT * FROM `%s.%s.%s`", 
+        String query = String.format("SELECT * FROM `%s.%s.%s` ORDER BY id", 
                 bigQuery.getOptions().getProjectId(), datasetName, tableName);
         return executeQuery(query);
     }

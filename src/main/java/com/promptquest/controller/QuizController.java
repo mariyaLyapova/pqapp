@@ -61,9 +61,15 @@ public class QuizController {
         int correct = 0;
         int total = answers.size();
 
+        // Sort question IDs to maintain order
+        List<Long> sortedIds = new ArrayList<>();
         for (String questionIdStr : answers.keySet()) {
-            Long questionId = Long.parseLong(questionIdStr);
-            String userAnswer = answers.get(questionIdStr);
+            sortedIds.add(Long.parseLong(questionIdStr));
+        }
+        Collections.sort(sortedIds);
+
+        for (Long questionId : sortedIds) {
+            String userAnswer = answers.get(String.valueOf(questionId));
 
             Question question = findQuestionById(questionId);
             if (question != null) {

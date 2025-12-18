@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -156,6 +157,60 @@ public class JsonImportService {
             clearAllQuestions();
         }
         return importQuestionsFromJson(jsonFilePath);
+    }
+
+    /**
+     * Import questions directly from an InputStream
+     * This is used for file uploads and works on Cloud Run (no filesystem needed)
+     * @param inputStream the input stream containing JSON data
+     * @param clearExisting whether to clear existing questions before import
+     * @return number of questions imported
+     */
+    @Transactional
+    public int importQuestionsFromInputStream(InputStream inputStream, boolean clearExisting) {
+        try {
+            logger.info("Starting import from InputStream, clearExisting: {}", clearExisting);
+
+            if (clearExisting) {
+                clearAllQuestions();
+            }
+
+            JsonNode rootNode = objectMapper.readTree(inputStream);
+            JsonNode questionsNode = rootNode.get("questions");
+
+            if (questionsNode == null || !questionsNode.isArray()) {
+                throw new RuntimeException("Invalid JSON format: 'questions' array not found");
+            }
+
+            int importedCount = 0;
+
+            for (JsonNode questionNode : questionsNode) {
+                Question question = convertJsonToQuestion(questionNode);
+                
+                // Use the appropriate service based on what's available
+                if (bigQueryQuestionService != null) {
+                    bigQueryQuestionService.saveQuestion(question);
+                } else if (questionRepository != null) {
+                    questionRepository.save(question);
+                } else {
+                    throw new RuntimeException("No data storage service available");
+                }
+                
+                importedCount++;
+                logger.debug("Imported question {}: {}", importedCount, 
+                    question.getQuestion().substring(0, Math.min(50, question.getQuestion().length())));
+            }
+
+            logger.info("Successfully imported {} questions from InputStream", importedCount);
+            return importedCount;
+
+        } catch (IOException e) {
+            logger.error("Error reading JSON from InputStream: {}", e.getMessage());
+            throw new RuntimeException("Failed to read JSON data", e);
+        } catch (Exception e) {
+            logger.error("Error importing questions: {}", e.getMessage());
+            throw new RuntimeException("Failed to import questions", e);
+        }
     }
 
     /**

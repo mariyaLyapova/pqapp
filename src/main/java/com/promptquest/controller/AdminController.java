@@ -25,7 +25,6 @@ import java.util.Map;
 public class AdminController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
-    private static final String UPLOAD_DIR = "temp/uploads/";
 
     @Autowired
     private JsonImportService jsonImportService;
@@ -58,26 +57,14 @@ public class AdminController {
         }
 
         try {
-            // Create upload directory if it doesn't exist
-            Path uploadPath = Path.of(UPLOAD_DIR);
-            Files.createDirectories(uploadPath);
+            // Import directly from the MultipartFile's input stream
+            // No need to save to disk - Cloud Run filesystem is read-only anyway
+            logger.info("Processing file: {}", file.getOriginalFilename());
 
-            // Save uploaded file temporarily
-            String fileName = "import_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            logger.info("File saved temporarily at: {}", filePath);
-
-            // Import questions using the service
-            int importedCount = jsonImportService.importQuestionsFromJson(
-                    "file:" + filePath.toAbsolutePath().toString(),
+            int importedCount = jsonImportService.importQuestionsFromInputStream(
+                    file.getInputStream(),
                     clearExisting
             );
-
-            // Clean up temporary file
-            Files.deleteIfExists(filePath);
-            logger.info("Temporary file cleaned up: {}", filePath);
 
             // Return success response
             Map<String, Object> response = new HashMap<>();
